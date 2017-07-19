@@ -6,6 +6,7 @@ use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\simple_sitemap\Logger;
 
 /**
  * @CommerceShippingMethod(
@@ -99,16 +100,17 @@ class UPSShippingMethod extends ShippingMethodBase {
    * {@inheritdoc}
    */
   public function calculateRates(ShipmentInterface $shipment) {
-    $accessKey = '';
-    $userId = '';
-    $password = '';
+    $accessKey = $this->configuration['access_key'];
+    $userId = $this->configuration['user_id'];
+    $password = $this->configuration['password'];
+    //rates is always an empty array to start
     $rates = [];
     if ($shipment->getShippingProfile()->address->isEmpty()) {
-      return [];
     }
     else {
-      return $rates;
     }
+    return $rates;
+
   }
 
 }
