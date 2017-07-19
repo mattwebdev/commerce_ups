@@ -11,7 +11,6 @@ use Ups\Entity\Shipment;
 use Ups\Entity\UnitOfMeasurement;
 use Ups\Rate;
 use Ups\Ups;
-use Ups\Ups\Rate;
 
 /**
  * @CommerceShippingMethod(
