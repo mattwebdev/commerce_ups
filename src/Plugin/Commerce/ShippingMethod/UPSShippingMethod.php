@@ -6,7 +6,11 @@ use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
 use Exception;
+use Ups\Entity\Address;
 use Ups\Entity\Dimensions;
+use Ups\Entity\Package;
+use Ups\Entity\PackagingType;
+use Ups\Entity\ShipFrom;
 use Ups\Entity\Shipment;
 use Ups\Entity\UnitOfMeasurement;
 use Ups\Rate;
@@ -77,9 +81,9 @@ class UPSShippingMethod extends ShippingMethodBase {
         $shipperAddress = $shipment->getShipper()->getAddress();
         $shipperAddress->setPostalCode('99205');
 
-        $address = new \Ups\Entity\Address();
+        $address = new Address();
         $address->setPostalCode('99205');
-        $shipFrom = new \Ups\Entity\ShipFrom();
+        $shipFrom = new ShipFrom();
         $shipFrom->setAddress($address);
 
         $shipment->setShipFrom($shipFrom);
@@ -89,8 +93,8 @@ class UPSShippingMethod extends ShippingMethodBase {
         $shipToAddress = $shipTo->getAddress();
         $shipToAddress->setPostalCode('99205');
 
-        $package = new \Ups\Entity\Package();
-        $package->getPackagingType()->setCode(\Ups\Entity\PackagingType::PT_PACKAGE);
+        $package = new Package();
+        $package->getPackagingType()->setCode(PackagingType::PT_PACKAGE);
         $package->getPackageWeight()->setWeight(10);
 
         $weightUnit = new UnitOfMeasurement;
