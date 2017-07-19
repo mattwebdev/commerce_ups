@@ -5,16 +5,7 @@ namespace Drupal\commerce_ups\Plugin\CommerceShippingMethod;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
-use Exception;
-use Ups\Entity\Address;
-use Ups\Entity\Dimensions;
-use Ups\Entity\Package;
-use Ups\Entity\PackagingType;
-use Ups\Entity\ShipFrom;
-use Ups\Entity\Shipment;
-use Ups\Entity\UnitOfMeasurement;
-use Ups\Rate;
-use Ups\Ups;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * @CommerceShippingMethod(
@@ -50,6 +41,48 @@ class UPSShippingMethod extends ShippingMethodBase {
   /**
    * {@inheritdoc}
    */
+  public function defaultConfiguration() {
+    return [
+        'access_key' => NULL,
+        'user_id' => NULL,
+        'password' => NULL,
+      ] + parent::defaultConfiguration();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    $form = parent::buildConfigurationForm($form, $form_state);
+
+    $form['access_key'] = [
+      '#type' => 'textfield',
+      '#title' => t('Access Key'),
+      '#description' => t(''),
+      '#default_value' => $this->configuration['access_key'],
+      '#required' => TRUE,
+    ];
+    $form['user_id'] = [
+      '#type' => 'textfield',
+      '#title' => t('User ID'),
+      '#description' => t(''),
+      '#default_value' => $this->configuration['user_id'],
+      '#required' => TRUE,
+    ];
+    $form['password'] = [
+      '#type' => 'textfield',
+      '#title' => t('Password'),
+      '#description' => t(''),
+      '#default_value' => $this->configuration['password'],
+      '#required' => TRUE,
+    ];
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getConfiguration() {
     return $this->configuration;
   }
@@ -69,11 +102,11 @@ class UPSShippingMethod extends ShippingMethodBase {
     $accessKey = '';
     $userId = '';
     $password = '';
-
+    $rates = [];
     if ($shipment->getShippingProfile()->address->isEmpty()) {
       return [];
-    } else {
-      $rates = [];
+    }
+    else {
       return $rates;
     }
   }
