@@ -117,9 +117,9 @@ class CommerceUPS extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-        'access_key' => '6D243D847D3796A8',
-        'user_id' => 'fypweb',
-        'password' => 'ytraPruoYroF%2017',
+        'access_key' => '',
+        'user_id' => '',
+        'password' => '',
       ] + parent::defaultConfiguration();
   }
 
@@ -183,7 +183,7 @@ class CommerceUPS extends ShippingMethodBase {
     else {
       try {
         $rate = new \Ups\Rate($accessKey, $userId, $password);
-
+        $rateRequest = new \Ups\Entity\RateRequest;
         //UPS Shippment object
         $shipmentObject = new \Ups\Entity\Shipment();
 
@@ -212,9 +212,9 @@ class CommerceUPS extends ShippingMethodBase {
 
         $package = $this->BuildPackage($shipment);
         $shipmentObject->addPackage($package);
-        //make request for rate
-        $rateRequest = $rate->getRate($rate);
-        array_push($rates,$rateRequest);
+        //$rateRequest->setShipment($shipment);
+        //make request for rate and add it to the rates array
+        array_push($rates, $rate->getRate($shipmentObject));
         return $rates;
 
       } catch (Exception $e) {
@@ -250,16 +250,71 @@ class CommerceUPS extends ShippingMethodBase {
   protected function BuildPackage(ShipmentInterface $shipment) {
     //Set Package
     $package = new \Ups\Entity\Package();
+
     $package->getPackagingType()
       ->setCode(\Ups\Entity\PackagingType::PT_PACKAGE);
-    $package->getPackageWeight()->setWeight($this->getPackageWeight($shipment));
-    //Set Weight Unit
-    $weightUnit = new \Ups\Entity\UnitOfMeasurement;
-    $weightUnit->setCode($this->setWeightUnit($shipment));
-    $package->getPackageWeight()->setUnitOfMeasurement($weightUnit);
+
+    $package->getPackageWeight()->setWeight($this->getPackageWeight($shipment)
+      ->getWeight());
+    $package->getPackageWeight()
+      ->setUnitOfMeasurement($this->getPackageWeight($shipment)
+        ->getUnitOfMeasurement());
     $package->setDimensions($this->setDimensions($shipment));
 
     return $package;
+  }
+
+  /**
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *
+   * @return \Ups\Entity\PackageWeight
+   */
+  protected function getPackageWeight(ShipmentInterface $shipment) {
+    $orderItems = $shipment->getOrder()->getItems();
+    $itemWeight = [];
+    foreach ($orderItems as $item) {
+      $weight = $item->getPurchasedEntity()
+        ->get('weight')
+        ->getValue()[0]['number'];
+      $quantity = $item->getQuantity();
+      $orderItemWeight = $weight * $quantity;
+      array_push($itemWeight, $orderItemWeight);
+    }
+    $upsWeight = new \Ups\Entity\PackageWeight();
+    $upsWeight->setWeight(implode($itemWeight));
+    $upsWeight->setUnitOfMeasurement($this->setWeightUnit($shipment));
+    return $upsWeight;
+  }
+
+  /**
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *
+   * @return \Ups\Entity\UnitOfMeasurement
+   */
+  protected function setWeightUnit(ShipmentInterface $shipment) {
+    $unit = new \Ups\Entity\UnitOfMeasurement();
+    $orderItems = $shipment->getOrder()->getItems();
+    foreach ($orderItems as $item) {
+      //we only need one unit because a package must have all the same weight unit so the last one is just as good as any.
+      $ItemUnit = $item->getPurchasedEntity()
+        ->get('weight')
+        ->getValue()[0]['unit'];
+    }
+    //making sure that at least 1 item is in the order...if not, set to pounds.
+    if (!isset($ItemUnit)) {
+      $unit->setCode(\Ups\Entity\UnitOfMeasurement::PROD_POUNDS);
+
+    }
+    else {
+
+      switch ($unit) {
+        case 'lb':
+          $unit->setCode(\Ups\Entity\UnitOfMeasurement::PROD_POUNDS);
+      }
+
+    }
+
+    return $unit;
   }
 
   protected function setDimensions(ShipmentInterface $shipment) {
@@ -268,56 +323,47 @@ class CommerceUPS extends ShippingMethodBase {
     $dimensions->setHeight($this->getPackageHeight($shipment));
     $dimensions->setWidth($this->getPackageWidth($shipment));
     $dimensions->setLength($this->getPackageLength($shipment));
-    $dimensions->setUnitOfMeasurement($this->setUnitofMeasurement());
+    $dimensions->setUnitOfMeasurement($this->setDimUnit());
 
     return $dimensions;
   }
 
-  protected function setUnitofMeasurement() {
+  /**
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *
+   * @return int
+   */
+  protected function getPackageHeight(ShipmentInterface $shipment) {
+    return 10;
+
+  }
+
+  /**
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *
+   * @return int
+   */
+  protected function getPackageWidth(ShipmentInterface $shipment) {
+    return 10;
+
+  }
+
+  /**
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *
+   * @return int
+   */
+  protected function getPackageLength(ShipmentInterface $shipment) {
+    return 10;
+
+  }
+
+  protected function setDimUnit() {
     //Set Unit
     $unit = new \Ups\Entity\UnitOfMeasurement;
     $unit->setCode(\Ups\Entity\UnitOfMeasurement::UOM_IN);
 
     return $unit;
-  }
-
-  protected function setWeightUnit(ShipmentInterface $shipment) {
-    $orderItems = $shipment->getOrder()->getItems();
-    foreach($orderItems as $item) {
-      //we only need one unit because a package must have all the same weight unit so the last one is just as good as any.
-      $unit = $item->getPurchasedEntity()->get('weight')->getValue()[0]['unit'];
-    }
-    //making sure that at least 1 item is in the order...if not, set to pounds.
-    if(!isset($unit)) {
-      $unit = 'lb';
-    }
-
-    return $unit;
-  }
-
-  protected function getPackageWeight(ShipmentInterface $shipment) {
-    $orderItems = $shipment->getOrder()->getItems();
-    $itemWeight = array();
-    foreach($orderItems as $item) {
-      $weight = $item->getPurchasedEntity()->get('weight')->getValue()[0]['number'];
-      $quantity = $item->getQuantity();
-      $orderItemWeight = $weight * $quantity;
-      array_push($itemWeight, $orderItemWeight);
-    }
-    return implode($itemWeight);
-  }
-
-  protected function getPackageWidth(ShipmentInterface $shipment) {
-    return 10;
-
-  }
-  protected function getPackageHeight(ShipmentInterface $shipment) {
-    return 10;
-
-  }
-  protected function getPackageLength(ShipmentInterface $shipment) {
-    return 10;
-
   }
 
 }
