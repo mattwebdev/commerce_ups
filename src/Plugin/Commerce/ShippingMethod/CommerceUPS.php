@@ -117,9 +117,9 @@ class CommerceUPS extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-        'access_key' => '',
-        'user_id' => '',
-        'password' => '',
+        'access_key' => '6D243D847D3796A8',
+        'user_id' => 'fypweb',
+        'password' => 'ytraPruoYroF%2017',
       ] + parent::defaultConfiguration();
   }
 
@@ -260,7 +260,6 @@ class CommerceUPS extends ShippingMethodBase {
       ->setUnitOfMeasurement($this->getPackageWeight($shipment)
         ->getUnitOfMeasurement());
     $package->setDimensions($this->setDimensions($shipment));
-
     return $package;
   }
 
@@ -277,11 +276,11 @@ class CommerceUPS extends ShippingMethodBase {
         ->get('weight')
         ->getValue()[0]['number'];
       $quantity = $item->getQuantity();
-      $orderItemWeight = $weight * $quantity;
+      $orderItemWeight = floatval($weight) * intval($quantity);
       array_push($itemWeight, $orderItemWeight);
     }
     $upsWeight = new \Ups\Entity\PackageWeight();
-    $upsWeight->setWeight(implode($itemWeight));
+    $upsWeight->setWeight(array_sum($itemWeight));
     $upsWeight->setUnitOfMeasurement($this->setWeightUnit($shipment));
     return $upsWeight;
   }
