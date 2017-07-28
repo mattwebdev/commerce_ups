@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_ups\Plugin\Commerce\ShippingMethod;
 
+use Drupal\commerce_price\Price;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\PackageTypeManagerInterface;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
@@ -166,6 +167,63 @@ class CommerceUPS extends ShippingMethodBase {
    * {@inheritdoc}
    */
   public function calculateRates(ShipmentInterface $shipment) {
+    //Rates Array
+    $rates = [];
+
+    if ($shipment->getShippingProfile()->address->isEmpty()) {
+      $rates = [];
+    }
+    else {
+        $UpsRate = $this->GetUPSRate($shipment);
+        $cost = $UpsRate->RatedShipment[0]->TotalCharges->MonetaryValue;
+        $currency = $UpsRate->RatedShipment[0]->TotalCharges->CurrencyCode;
+        $price = new Price((string) $cost,$currency);
+        $ServiceCode =$UpsRate->RatedShipment[0]->Service->getCode();
+        $shippingService = new ShippingService(
+          $ServiceCode,
+          $this->TranslateServiceCodeToString($ServiceCode)
+        );
+        $rates[] = new ShippingRate(
+          $ServiceCode,
+          $shippingService,
+          $price
+        );
+        return $rates;
+    }
+  }
+  protected function TranslateServiceCodeToString($serviceCode) {
+    switch($serviceCode) {
+    //Domestic
+      case 14:
+        $service = "UPS Next Day Air Early";
+        break;
+      case 01:
+        $service = "UPS Next Day Air";
+        break;
+      case 13:
+        $service = "UPS Next Day Air Saver";
+        break;
+      case 59:
+        $service = "UPS 2nd Day Air A.M.";
+        break;
+      case 02:
+        $service = "UPS 2nd Day Air";
+        break;
+      case 12:
+        $service = "UPS 3 Day Select";
+        break;
+      case 03:
+        $service = "UPS Ground";
+        break;
+      default:
+        $service = "UPS Ground";
+        break;
+    }
+    return $service;
+  }
+
+  protected function GetUPSRate(ShipmentInterface $shipment) {
+  try {
     //UPS Access
     $accessKey = $this->configuration['access_key'];
     $userId = $this->configuration['user_id'];
@@ -174,53 +232,44 @@ class CommerceUPS extends ShippingMethodBase {
     $store = $shipment->getOrder()->getStore();
     $ShippingProfile = $shipment->getShippingProfile();
     $ShippingProfileAddress = $shipment->getShippingProfile()->get('address');
-    //Rates Array
-    $rates = [];
 
-    if ($shipment->getShippingProfile()->address->isEmpty()) {
-      $rates = [];
-    }
-    else {
-      try {
-        $rate = new \Ups\Rate($accessKey, $userId, $password);
-        $rateRequest = new \Ups\Entity\RateRequest;
-        //UPS Shippment object
-        $shipmentObject = new \Ups\Entity\Shipment();
+    $rate = new \Ups\Rate($accessKey, $userId, $password);
+    $rateRequest = new \Ups\Entity\RateRequest;
+    //UPS Shippment object
+    $shipmentObject = new \Ups\Entity\Shipment();
 
-        //set Shipper address
-        $shipperAddress = $shipmentObject->getShipper()->getAddress();
-        $shipperAddress->setAddressLine1($store->getAddress()
-          ->getAddressLine1());
-        $shipperAddress->setAddressLine2($store->getAddress()
-          ->getAddressLine2());
-        $shipperAddress->setCity($store->getAddress()->getLocality());
-        $shipperAddress->setStateProvinceCode($store->getAddress()
-          ->get('administrative_area')
-          ->getValue());
-        $shipperAddress->setPostalCode($store->getAddress()->getPostalCode());
-        $shipperAddress->setCountryCode($store->getAddress()->getCountryCode());
+    //set Shipper address
+    $shipperAddress = $shipmentObject->getShipper()->getAddress();
+    $shipperAddress->setAddressLine1($store->getAddress()
+      ->getAddressLine1());
+    $shipperAddress->setAddressLine2($store->getAddress()
+      ->getAddressLine2());
+    $shipperAddress->setCity($store->getAddress()->getLocality());
+    $shipperAddress->setStateProvinceCode($store->getAddress()
+      ->get('administrative_area')
+      ->getValue());
+    $shipperAddress->setPostalCode($store->getAddress()->getPostalCode());
+    $shipperAddress->setCountryCode($store->getAddress()->getCountryCode());
 
-        //set ShipFrom
-        $ShipFrom = new \Ups\Entity\ShipFrom();
-        $ShipFrom->setAddress($shipperAddress);
+    //set ShipFrom
+    $ShipFrom = new \Ups\Entity\ShipFrom();
+    $ShipFrom->setAddress($shipperAddress);
 
-        //set ShipTO
-        $ShipTo = $shipmentObject->getShipTo();
-        $ShipTo->setCompanyName($ShippingProfileAddress->first()
-          ->getOrganization());
-        $ShipTo->setAddress($this->BuildShipToAddress($shipment));
+    //set ShipTO
+    $ShipTo = $shipmentObject->getShipTo();
+    $ShipTo->setCompanyName($ShippingProfileAddress->first()
+      ->getOrganization());
+    $ShipTo->setAddress($this->BuildShipToAddress($shipment));
 
-        $package = $this->BuildPackage($shipment);
-        $shipmentObject->addPackage($package);
-        //$rateRequest->setShipment($shipment);
-        //make request for rate and add it to the rates array
-        array_push($rates, $rate->getRate($shipmentObject));
-        return $rates;
+    $package = $this->BuildPackage($shipment);
+    $shipmentObject->addPackage($package);
 
-      } catch (Exception $e) {
-        var_dump($e);
-      }
-    }
+    $rateRequest = $rate->getRate($shipmentObject);
+  } catch (Exception $e) {
+    $rateRequest = $e;
+  }
+    return $rateRequest;
+
   }
 
   /**
