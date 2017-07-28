@@ -212,7 +212,8 @@ class CommerceUPS extends ShippingMethodBase {
 
         $package = $this->BuildPackage($shipment);
         $shipmentObject->addPackage($package);
-        $rateRequest = $rate->shopRates($rate);
+        //make request for rate
+        $rateRequest = $rate->getRate($rate);
         array_push($rates,$rateRequest);
         return $rates;
 
