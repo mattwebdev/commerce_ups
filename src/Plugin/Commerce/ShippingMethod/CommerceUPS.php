@@ -117,9 +117,9 @@ class CommerceUPS extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-        'access_key' => '',
-        'user_id' => '',
-        'password' => '',
+        'access_key' => '6D243D847D3796A8',
+        'user_id' => 'fypweb',
+        'password' => 'ytraPruoYroF%2017',
       ] + parent::defaultConfiguration();
   }
 
@@ -212,6 +212,8 @@ class CommerceUPS extends ShippingMethodBase {
 
         $package = $this->BuildPackage($shipment);
         $shipmentObject->addPackage($package);
+        $rateRequest = $rate->shopRates($rate);
+        array_push($rates,$rateRequest);
         return $rates;
 
       } catch (Exception $e) {
