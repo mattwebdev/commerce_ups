@@ -118,9 +118,9 @@ class CommerceUPS extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-        'access_key' => '6D243D847D3796A8',
-        'user_id' => 'fypweb',
-        'password' => 'ytraPruoYroF%2017',
+        'access_key' => '',
+        'user_id' => '',
+        'password' => '',
       ] + parent::defaultConfiguration();
   }
 
