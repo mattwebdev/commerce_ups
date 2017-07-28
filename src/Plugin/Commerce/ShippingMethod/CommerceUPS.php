@@ -174,7 +174,6 @@ class CommerceUPS extends ShippingMethodBase {
     $store = $shipment->getOrder()->getStore();
     $ShippingProfile = $shipment->getShippingProfile();
     $ShippingProfileAddress = $shipment->getShippingProfile()->get('address');
-    //die(kint($ShippingProfileAddress));
     //Rates Array
     $rates = [];
 
@@ -263,9 +262,9 @@ class CommerceUPS extends ShippingMethodBase {
   protected function setDimensions(ShipmentInterface $shipment) {
     //Set Dims
     $dimensions = new \Ups\Entity\Dimensions();
-    $dimensions->setHeight(10);
-    $dimensions->setWidth(10);
-    $dimensions->setLength(10);
+    $dimensions->setHeight($this->getPackageHeight($shipment));
+    $dimensions->setWidth($this->getPackageWidth($shipment));
+    $dimensions->setLength($this->getPackageLength($shipment));
     $dimensions->setUnitOfMeasurement($this->setUnitofMeasurement());
 
     return $dimensions;
@@ -282,14 +281,15 @@ class CommerceUPS extends ShippingMethodBase {
   protected function setWeightUnit(ShipmentInterface $shipment) {
     $orderItems = $shipment->getOrder()->getItems();
     foreach($orderItems as $item) {
+      //we only need one unit because a package must have all the same weight unit so the last one is just as good as any.
       $unit = $item->getPurchasedEntity()->get('weight')->getValue()[0]['unit'];
     }
     //making sure that at least 1 item is in the order...if not, set to pounds.
     if(!isset($unit)) {
       $unit = 'lb';
     }
-    return $unit;
 
+    return $unit;
   }
 
   protected function getPackageWeight(ShipmentInterface $shipment) {
@@ -305,12 +305,15 @@ class CommerceUPS extends ShippingMethodBase {
   }
 
   protected function getPackageWidth(ShipmentInterface $shipment) {
+    return 10;
 
   }
   protected function getPackageHeight(ShipmentInterface $shipment) {
+    return 10;
 
   }
   protected function getPackageLength(ShipmentInterface $shipment) {
+    return 10;
 
   }
 
