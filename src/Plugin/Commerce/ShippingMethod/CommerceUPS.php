@@ -174,22 +174,30 @@ class CommerceUPS extends ShippingMethodBase {
       $rates = [];
     }
     else {
-      $UpsRate = $this->GetUPSRate($shipment);
-      $cost = $UpsRate->RatedShipment[0]->TotalCharges->MonetaryValue;
-      $currency = $UpsRate->RatedShipment[0]->TotalCharges->CurrencyCode;
-      $price = new Price((string) $cost, $currency);
-      $ServiceCode = $UpsRate->RatedShipment[0]->Service->getCode();
-      $shippingService = new ShippingService(
-        $ServiceCode,
-        $this->TranslateServiceCodeToString($ServiceCode)
-      );
-      $rates[] = new ShippingRate(
-        $ServiceCode,
-        $shippingService,
-        $price
-      );
-      return $rates;
+      $UpsRates = $this->GetUPSRate($shipment);
+      foreach($UpsRates as $upsRateObject) {
+        foreach($upsRateObject as $upsRate) {
+          $cost = $upsRate->TotalCharges->MonetaryValue;
+          $currency = $upsRate->TotalCharges->CurrencyCode;
+
+          $price = new Price((string) $cost, $currency);
+          $ServiceCode = $upsRate->Service->getCode();
+
+          $shippingService = new ShippingService(
+            $ServiceCode,
+            $this->TranslateServiceCodeToString($ServiceCode)
+          );
+
+          $rates[] = new ShippingRate(
+            $ServiceCode,
+            $shippingService,
+            $price
+          );
+
+        }
+      }
     }
+    return $rates;
   }
 
   protected function GetUPSRate(ShipmentInterface $shipment) {
@@ -234,7 +242,7 @@ class CommerceUPS extends ShippingMethodBase {
       $package = $this->BuildPackage($shipment);
       $shipmentObject->addPackage($package);
 
-      $rateRequest = $rate->getRate($shipmentObject);
+      $rateRequest = $rate->shopRates($shipmentObject);
     } catch (Exception $e) {
       $rateRequest = $e;
     }
@@ -352,8 +360,10 @@ class CommerceUPS extends ShippingMethodBase {
    * @return int
    */
   protected function getPackageHeight(ShipmentInterface $shipment) {
+    $items = $shipment->getOrder();
+    foreach($items as $item) {
+    }
     return 10;
-
   }
 
   /**
