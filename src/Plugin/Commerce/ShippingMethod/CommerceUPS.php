@@ -12,36 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Psy\Exception\Exception;
 
 //drupal doesnt autoload from modules yet.
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/NodeInterface.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/RequestInterface.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Exception/RequestException.php');
-
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Ups.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Rate.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Request.php');
-
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Shipping.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/Address.php');
-
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/Shipment.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/Shipper.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/ShipTo.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/ShipFrom.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/ReferenceNumber.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/Package.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/PackageWeight.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/PackageServiceOptions.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/Dimensions.php');
-
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/PackagingType.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/UnitOfMeasurement.php');
-
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/ShipmentServiceOptions.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/CallTagARS.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/Service.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/RateRequest.php');
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/gabrielbull/ups-api/src/Entity/PickupType.php');
-
+require(drupal_get_path('module', 'commerce_ups') . '/vendor/autoload.php');
 
 /**
  * @CommerceShippingMethod(
@@ -360,9 +331,8 @@ class CommerceUPS extends ShippingMethodBase {
    * @return int
    */
   protected function getPackageHeight(ShipmentInterface $shipment) {
-    $items = $shipment->getOrder();
-    foreach($items as $item) {
-    }
+    //$items = $shipment->getOrder();
+
     return 10;
   }
 
@@ -372,6 +342,8 @@ class CommerceUPS extends ShippingMethodBase {
    * @return int
    */
   protected function getPackageWidth(ShipmentInterface $shipment) {
+    //$items = $shipment->getOrder();
+
     return 10;
 
   }
@@ -382,6 +354,8 @@ class CommerceUPS extends ShippingMethodBase {
    * @return int
    */
   protected function getPackageLength(ShipmentInterface $shipment) {
+    //$items = $shipment->getOrder();
+
     return 10;
 
   }
