@@ -170,6 +170,4 @@ class CommerceUPS extends ShippingMethodBase {
     }
     return $rates;
   }
-
-
 }
