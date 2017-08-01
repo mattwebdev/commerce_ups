@@ -21,7 +21,6 @@ class ups {
       $ShippingProfileAddress = $shipment->getShippingProfile()->get('address');
 
       $rate = new \Ups\Rate($accessKey, $userId, $password);
-      $rateRequest = new \Ups\Entity\RateRequest;
       //UPS Shippment object
       $shipmentObject = new \Ups\Entity\Shipment();
 
