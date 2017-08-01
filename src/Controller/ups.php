@@ -17,7 +17,6 @@ class ups {
       $password = $configuration['password'];
       //Commerce Data
       $store = $shipment->getOrder()->getStore();
-      $ShippingProfile = $shipment->getShippingProfile();
       $ShippingProfileAddress = $shipment->getShippingProfile()->get('address');
 
       $rate = new \Ups\Rate($accessKey, $userId, $password);
