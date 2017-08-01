@@ -1,16 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mattheinke
- * Date: 8/1/17
- * Time: 12:28 PM
- */
-
 namespace Drupal\commerce_ups\Controller;
 
 
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
-use Drupal\commerce_ups\Plugin\Commerce\ShippingMethod\CommerceUPS;
 use Psy\Exception\Exception;
 
 require(drupal_get_path('module', 'commerce_ups') . '/vendor/autoload.php');
