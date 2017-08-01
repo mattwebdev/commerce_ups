@@ -177,9 +177,12 @@ class ups {
    * @return int
    */
   public function getPackageHeight(ShipmentInterface $shipment) {
-    //$items = $shipment->getOrder();
-
-    return 10;
+    $items = $shipment->getOrder()->getItems();
+    $heights = [];
+    foreach($items as $item) {
+      $heights[] = floatval($item->getPurchasedEntity()->get('dimensions')->first()->getHeight()->getNumber());
+    }
+    return max($heights);
   }
 
   /**
@@ -188,9 +191,13 @@ class ups {
    * @return int
    */
   public function getPackageWidth(ShipmentInterface $shipment) {
-    //$items = $shipment->getOrder();
+    $items = $shipment->getOrder()->getItems();
+    $widths = [];
+    foreach($items as $item) {
+      $widths[] = floatval($item->getPurchasedEntity()->get('dimensions')->first()->getWidth()->getNumber());
+    }
 
-    return 10;
+    return max($widths);
 
   }
 
@@ -200,9 +207,13 @@ class ups {
    * @return int
    */
   public function getPackageLength(ShipmentInterface $shipment) {
-    //$items = $shipment->getOrder();
+    $items = $shipment->getOrder()->getItems();
+    $lengths = [];
+    foreach($items as $item) {
+      $lengths[] = floatval($item->getPurchasedEntity()->get('dimensions')->first()->getLength()->getNumber());
+    }
 
-    return 10;
+    return max($lengths);
 
   }
 
