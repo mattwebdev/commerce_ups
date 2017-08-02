@@ -7,6 +7,14 @@ use Ups\Entity\PackageWeight;
 use Ups\Entity\PackagingType;
 
 class UPSPackage {
+
+  /**
+   * UPSPackage constructor.
+   *
+   * @param \Ups\Entity\PackagingType $packageType
+   * @param \Ups\Entity\Dimensions $dimensions
+   * @param \Ups\Entity\PackageWeight $weight
+   */
   public function __construct(PackagingType $packageType, PackageDimensions $dimensions, PackageWeight $weight) {
     $package = new Package();
     $package->setPackagingType($packageType);

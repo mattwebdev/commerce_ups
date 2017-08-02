@@ -8,6 +8,12 @@ use Ups\Entity\PackageWeight;
 use Ups\Entity\UnitOfMeasurement;
 
 class UPSPhysical {
+
+  /**
+   * @param \Drupal\physical\Weight $weight
+   *
+   * @return \Ups\Entity\PackageWeight
+   */
   public function getWeight(Weight $weight) {
     $UPSWeight = new PackageWeight();
     $UPSWeight->setUnitOfMeasurement($this->translateWeightUnits($weight));
@@ -17,6 +23,11 @@ class UPSPhysical {
 
   }
 
+  /**
+   * @param \Drupal\physical\Dimensions $dimensions
+   *
+   * @return \Ups\Entity\Dimensions
+   */
   public function getDimensions(Dimensions $dimensions) {
     $UPSDimensions = new PackageDimensions();
     $UPSDimensions->setUnitOfMeasurement($this->translateUnitOfMeasurement($dimensions));
@@ -27,6 +38,11 @@ class UPSPhysical {
     return $UPSDimensions;
   }
 
+  /**
+   * @param \Drupal\physical\Dimensions $dimensions
+   *
+   * @return \Ups\Entity\UnitOfMeasurement
+   */
   public function translateUnitOfMeasurement(Dimensions $dimensions) {
     $UPSUnit = new UnitOfMeasurement();
     $Unit = $dimensions->getUnit();
@@ -34,6 +50,11 @@ class UPSPhysical {
     return $UPSUnit;
   }
 
+  /**
+   * @param \Drupal\physical\Weight $weight
+   *
+   * @return \Ups\Entity\UnitOfMeasurement
+   */
   public function translateWeightUnits(Weight $weight) {
     $UPSWeightUnit = new UnitOfMeasurement();
     $weightUnit = $weight->getUnit();

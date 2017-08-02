@@ -38,10 +38,16 @@ class UPSRequest {
     $this->rate = new Rate();
   }
 
+  /**
+   * @return \Ups\Entity\RateResponse
+   */
   public function getSingleRate() {
     return $this->rate->getRate($this->shipment);
   }
 
+  /**
+   * @return \Ups\Entity\RateResponse
+   */
   public function getAllRates() {
     return $this->rate->shopRates($this->shipment);
   }

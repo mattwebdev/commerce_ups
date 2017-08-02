@@ -5,7 +5,18 @@ use Ups\Entity\Address;
 use Ups\Entity\Shipper;
 
 class UPSShipper {
-  public function __construct($name, $companyName, $phoneNumber,$faxNumber,$emailAddress,Address $Address) {
+
+  /**
+   * UPSShipper constructor.
+   *
+   * @param $name
+   * @param $companyName
+   * @param $phoneNumber
+   * @param $faxNumber
+   * @param $emailAddress
+   * @param \Ups\Entity\Address $Address
+   */
+  public function __construct($name, $companyName, $phoneNumber, $faxNumber, $emailAddress, Address $Address) {
 
     $shipper = new Shipper();
     $shipper->setName($name);
