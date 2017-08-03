@@ -28,6 +28,7 @@ class UPSAddress {
   public function verifyAddress(Address $address, $configuration) {
     $validation = new AddressValidation($configuration['accessKey'], $configuration['userId'], $configuration['password']);
     try {
+      // @todo remove 2nd and 3rd parameter.
       $response = $validation->validate($address, $requestOption = AddressValidation::REQUEST_OPTION_ADDRESS_VALIDATION, $maxSuggestion = 15);
     } catch (Exception $e) {
       $response = $e;

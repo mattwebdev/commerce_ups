@@ -60,11 +60,8 @@ class CommerceUPS extends ShippingMethodBase {
    *   The plugin implementation definition.
    * @param \Drupal\commerce_shipping\PackageTypeManagerInterface $packageTypeManager
    *
-   * @param \Psr\Log\LoggerInterface $watchdog
-   *
-   * @internal param \Drupal\commerce_shipping\PackageTypeManagerInterface
-   *   $package_type_manager The package type manager.*   The package type
-   *   manager.
+   * @internal param \Drupal\commerce_shipping\PackageTypeManagerInterface $package_type_manager
+   *   The package type manager.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, PackageTypeManagerInterface $packageTypeManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $packageTypeManager);
@@ -137,10 +134,11 @@ class CommerceUPS extends ShippingMethodBase {
     //Rates Array
     $rates = [];
 
-    if ($shipment->getShippingProfile()->address->isEmpty()) {
+    if ($shipment->getShippingProfile()->get('address')->isEmpty()) {
       $rates = [];
     }
     else {
+      // @todo Make that class a service.
       $ups = new ups;
       $UpsRates = $ups->GetUPSRate($shipment,$this->configuration);
       foreach ($UpsRates as $upsRateObject) {

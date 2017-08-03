@@ -6,6 +6,9 @@ use Ups\Entity\Package;
 use Ups\Entity\PackageWeight;
 use Ups\Entity\PackagingType;
 
+// @todo any reason to use this versus manually building object elsewhere?
+// @todo is this used?
+// @todo this shouldn't be marked as a service, since it has dynamic non-service constructor.
 class UPSPackage {
 
   /**
