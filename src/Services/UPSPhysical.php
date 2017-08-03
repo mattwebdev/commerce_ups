@@ -50,11 +50,10 @@ class UPSPhysical {
   public function translateUnitOfMeasurement(Measurement $height, Measurement $length, Measurement $width) {
     $equality = $this->checkUnitEquality($height,$length,$width);
     $UPSUnit = new UnitOfMeasurement();
-    if($equality == 0) {
-      $UPSUnit->setCode($height->getUnit());
-    } else {
+    if($equality != 0) {
       \Drupal::logger('commerce_ups')->warning("Units are not equal, using Height as the basic unit");
     }
+    $UPSUnit->setCode($height->getUnit());
 
     return $UPSUnit;
   }
