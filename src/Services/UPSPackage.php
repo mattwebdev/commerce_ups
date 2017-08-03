@@ -24,4 +24,8 @@ class UPSPackage {
     $package->setDimensions($dimensions);
     $package->setPackageWeight($weight);
   }
+
+  public function getPackagingType() {
+
+  }
 }
