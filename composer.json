@@ -1,0 +1,18 @@
+{
+  "name": "commerce_ups/commerce_ups",
+  "type": "drupal-module",
+  "description": "UPS shipping module",
+  "keywords": [
+    "Drupal"
+  ],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/commerce_ups",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/commerce_ups",
+    "source": "http://cgit.drupalcode.org/commerce_ups"
+  },
+  "require": {
+    "gabrielbull/ups-api": "dev-master"
+  }
+}
