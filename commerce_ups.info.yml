@@ -2,4 +2,7 @@ name: commerce_ups
 type: module
 description: UPS Shipping Module for Drupal 8
 core: 8.x
-package: Commerce
+package: Commerce (shipping)
+core: 8.x
+dependencies:
+  - commerce_shipping
