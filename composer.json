@@ -11,6 +11,6 @@
     "source": "http://cgit.drupalcode.org/commerce_ups"
   },
   "require": {
-    "gabrielbull/ups-api": "dev-master"
+    "gabrielbull/ups-api": "~0.7"
   }
 }
