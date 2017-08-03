@@ -11,9 +11,6 @@ use Drupal\commerce_shipping\ShippingService;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\commerce_ups\Controller\ups;
 
-//drupal doesnt autoload from modules yet.
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/autoload.php');
-
 /**
  * @CommerceShippingMethod(
  *  id = "ups",

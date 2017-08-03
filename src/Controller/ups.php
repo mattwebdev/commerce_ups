@@ -5,8 +5,6 @@ namespace Drupal\commerce_ups\Controller;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Psy\Exception\Exception;
 
-require(drupal_get_path('module', 'commerce_ups') . '/vendor/autoload.php');
-
 class ups {
 
   public function GetUPSRate(ShipmentInterface $shipment, $configuration) {
