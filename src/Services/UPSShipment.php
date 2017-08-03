@@ -6,6 +6,7 @@ use Ups\Entity\Shipment;
 use Ups\Entity\Shipper;
 use Ups\Entity\ShipTo;
 
+// @todo this should not be a service, dynamic constructor.
 class UPSShipment {
 
   protected $shipment;

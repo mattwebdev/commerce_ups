@@ -27,6 +27,8 @@ class UPSPhysical {
    * @param \Drupal\physical\Dimensions $dimensions
    *
    * @return \Ups\Entity\Dimensions
+   *
+   * @todo physical\Dimensions doesn't exist?
    */
   public function getDimensions(Dimensions $dimensions) {
     $UPSDimensions = new PackageDimensions();
@@ -42,6 +44,8 @@ class UPSPhysical {
    * @param \Drupal\physical\Dimensions $dimensions
    *
    * @return \Ups\Entity\UnitOfMeasurement
+   *
+   * * @todo physical\Dimensions doesn't exist?
    */
   public function translateUnitOfMeasurement(Dimensions $dimensions) {
     $UPSUnit = new UnitOfMeasurement();
