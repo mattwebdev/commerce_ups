@@ -4,6 +4,15 @@ namespace Drupal\commerce_ups\Controller;
 
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Psy\Exception\Exception;
+use Ups\Entity\Address;
+use Ups\Entity\Dimensions;
+use Ups\Entity\Package;
+use Ups\Entity\PackageWeight;
+use Ups\Entity\PackagingType;
+use Ups\Entity\ShipFrom;
+use Ups\Entity\Shipment;
+use Ups\Entity\UnitOfMeasurement;
+use Ups\Rate;
 
 // @todo Move this into root /src directory, define as a service.
 class ups {
@@ -20,11 +29,9 @@ class ups {
       /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
       $ShippingProfileAddress = $shipment->getShippingProfile()->get('address')->first();
 
-      // @todo import, no need for full class name.
-      $rate = new \Ups\Rate($accessKey, $userId, $password);
+      $rate = new Rate($accessKey, $userId, $password);
       //UPS Shippment object
-      // @todo import, no need for full class name.
-      $shipmentObject = new \Ups\Entity\Shipment();
+      $shipmentObject = new Shipment();
 
       //set Shipper address
       $shipperAddress = $shipmentObject->getShipper()->getAddress();
@@ -36,8 +43,7 @@ class ups {
       $shipperAddress->setCountryCode($store->getAddress()->getCountryCode());
 
       //set ShipFrom
-      // @todo import, no need for full class name.
-      $ShipFrom = new \Ups\Entity\ShipFrom();
+      $ShipFrom = new ShipFrom();
       $ShipFrom->setAddress($shipperAddress);
 
       //set ShipTO
@@ -70,8 +76,7 @@ class ups {
   public function BuildShipToAddress(ShipmentInterface $shipment) {
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
     $ShippingProfileAddress = $shipment->getShippingProfile()->get('address')->first();
-    // @todo import, no need for full class name.
-    $ShipToAddress = new \Ups\Entity\Address();
+    $ShipToAddress = new Address();
     $ShipToAddress->setAddressLine1($ShippingProfileAddress->getAddressLine1());
     $ShipToAddress->setAddressLine2($ShippingProfileAddress->getAddressLine2());
     $ShipToAddress->setCity($ShippingProfileAddress->getLocality());
@@ -83,10 +88,8 @@ class ups {
   // @todo camel case, buildPackage
   public function BuildPackage(ShipmentInterface $shipment) {
     //Set Package
-    // @todo import, no need for full class name.
-    $package = new \Ups\Entity\Package();
-    // @todo import, no need for full class name.
-    $package->getPackagingType()->setCode(\Ups\Entity\PackagingType::PT_PACKAGE);
+    $package = new Package();
+    $package->getPackagingType()->setCode(PackagingType::PT_PACKAGE);
 
     $package->getPackageWeight()->setWeight($this->getPackageWeight($shipment)->getWeight());
     $package->getPackageWeight()->setUnitOfMeasurement($this->getPackageWeight($shipment)->getUnitOfMeasurement());
@@ -109,8 +112,7 @@ class ups {
       $orderItemWeight = floatval($weight) * intval($quantity);
       array_push($itemWeight, $orderItemWeight);
     }
-    // @todo import, no need for full class name.
-    $upsWeight = new \Ups\Entity\PackageWeight();
+    $upsWeight = new PackageWeight();
     $upsWeight->setWeight(array_sum($itemWeight));
     $upsWeight->setUnitOfMeasurement($this->setWeightUnit($shipment));
     return $upsWeight;
@@ -122,8 +124,7 @@ class ups {
    * @return \Ups\Entity\UnitOfMeasurement
    */
   public function setWeightUnit(ShipmentInterface $shipment) {
-    // @todo import, no need for full class name.
-    $unit = new \Ups\Entity\UnitOfMeasurement();
+    $unit = new UnitOfMeasurement();
     $orderItems = $shipment->getOrder()->getItems();
     foreach ($orderItems as $item) {
       //we only need one unit because a package must have all the same weight unit so the last one is just as good as any.
@@ -132,16 +133,14 @@ class ups {
     }
     //making sure that at least 1 item is in the order...if not, set to pounds.
     if (!isset($ItemUnit)) {
-      // @todo import, no need for full class name.
-      $unit->setCode(\Ups\Entity\UnitOfMeasurement::PROD_POUNDS);
+      $unit->setCode(UnitOfMeasurement::PROD_POUNDS);
 
     }
     else {
 
       switch ($unit) {
         case 'lb':
-          // @todo import, no need for full class name.
-          $unit->setCode(\Ups\Entity\UnitOfMeasurement::PROD_POUNDS);
+          $unit->setCode(UnitOfMeasurement::PROD_POUNDS);
       }
 
     }
@@ -151,8 +150,7 @@ class ups {
 
   public function setDimensions(ShipmentInterface $shipment) {
     //Set Dims
-    // @todo import, no need for full class name.
-    $dimensions = new \Ups\Entity\Dimensions();
+    $dimensions = new Dimensions();
     $dimensions->setHeight($this->getPackageHeight($shipment));
     $dimensions->setWidth($this->getPackageWidth($shipment));
     $dimensions->setLength($this->getPackageLength($shipment));
@@ -209,9 +207,8 @@ class ups {
 
   public function setDimUnit() {
     //Set Unit
-    // @todo import, no need for full class name.
-    $unit = new \Ups\Entity\UnitOfMeasurement;
-    $unit->setCode(\Ups\Entity\UnitOfMeasurement::UOM_IN);
+    $unit = new UnitOfMeasurement;
+    $unit->setCode(UnitOfMeasurement::UOM_IN);
 
     return $unit;
   }
