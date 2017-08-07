@@ -1,0 +1,12 @@
+commerce_shipping.commerce_shipping_method.plugin.ups:
+  type: commerce_shipping_method_configuration
+  mapping:
+    access_key:
+      type: string
+      label: 'Access Key'
+    user_id:
+      type: string
+      label: 'User ID'
+    password:
+      type: string
+      label: 'Password'
