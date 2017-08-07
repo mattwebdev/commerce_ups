@@ -122,6 +122,31 @@ class CommerceUPS extends ShippingMethodBase {
   /**
    * {@inheritdoc}
    */
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+
+    parent::validateConfigurationForm($form, $form_state);
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    if (!$form_state->getErrors()) {
+
+      $values = $form_state->getValue($form['#parents']);
+
+      $this->configuration['access_key'] = $values['access_key'];
+      $this->configuration['user_id'] = $values['user_id'];
+      $this->configuration['password'] = $values['password'];
+
+    }
+    parent::submitConfigurationForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function selectRate(ShipmentInterface $shipment, ShippingRate $rate) {
     $shipment->setShippingService($rate->getService()->getId());
     $shipment->setAmount($rate->getAmount());
