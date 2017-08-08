@@ -107,7 +107,7 @@ class ups {
     $itemWeight = [];
     foreach ($orderItems as $item) {
       // @todo check fedex, seems like this should be easier.
-      $weight = $item->getPurchasedEntity()->get('weight')->value;
+      $weight = $item->getPurchasedEntity()->get('weight')->first();
       $quantity = $item->getQuantity();
       $orderItemWeight = floatval($weight) * intval($quantity);
       array_push($itemWeight, $orderItemWeight);
