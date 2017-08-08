@@ -21,12 +21,18 @@ use Ups\SimpleAddressValidation;
  */
 class Ups {
 
-  public function getUpsRate(ShipmentInterface $shipment, $configuration) {
+  private $configuration;
+
+  public function __construct($configuration) {
+    $this->configuration = $configuration;
+  }
+
+  public function getUpsRate(ShipmentInterface $shipment) {
     try {
       // UPS Access.
-      $accessKey = $configuration['access_key'];
-      $userId = $configuration['user_id'];
-      $password = $configuration['password'];
+      $accessKey = $this->configuration['access_key'];
+      $userId = $this->configuration['user_id'];
+      $password = $this->configuration['password'];
       // Commerce Data.
       $store = $shipment->getOrder()->getStore();
       /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
@@ -82,6 +88,13 @@ class Ups {
     $ShipToAddress->setCity($ShippingProfileAddress->getLocality());
     $ShipToAddress->setStateProvinceCode($ShippingProfileAddress->getAdministrativeArea());
     $ShipToAddress->setPostalCode($ShippingProfileAddress->getPostalCode());
+    // Verify the ship To address that was just created
+    $verify = $this->verifySimpleAddress($ShipToAddress);
+    // @todo - we should probably present the user with options, but for now, just take the most likely option.
+    $ShipToAddress->setCity($verify[0]->Address->City);
+    $ShipToAddress->setStateProvinceCode(($verify[0]->Address->StateProvinceCode));
+
+    // Return ShipToAddress with the modifications made by the verification process
     return $ShipToAddress;
   }
 
@@ -262,9 +275,9 @@ class Ups {
    *
    * @return array
    */
-  public function verifySimpleAddress(Address $address, $configuration) {
+  public function verifySimpleAddress(Address $address) {
     $validation = [];
-    $av = new SimpleAddressValidation($configuration['access_key'], $configuration['user_id'], $configuration['password']);
+    $av = new SimpleAddressValidation($this->configuration['access_key'], $this->configuration['user_id'], $this->configuration['password']);
     try {
       $validation = $av->validate($address);
     } catch (Exception $e) {
