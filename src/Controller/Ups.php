@@ -263,6 +263,7 @@ class Ups {
    * @return array
    */
   public function verifySimpleAddress(Address $address, $configuration) {
+    $validation = [];
     $av = new SimpleAddressValidation($configuration['access_key'], $configuration['user_id'], $configuration['password']);
     try {
       $validation = $av->validate($address);
