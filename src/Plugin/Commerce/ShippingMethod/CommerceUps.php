@@ -89,6 +89,7 @@ class CommerceUps extends ShippingMethodBase {
       'access_key' => '',
       'user_id' => '',
       'password' => '',
+      'testMode'
     ] + parent::defaultConfiguration();
   }
 
@@ -119,6 +120,10 @@ class CommerceUps extends ShippingMethodBase {
       '#default_value' => $this->configuration['password'],
       '#required' => TRUE,
     ];
+    $form['testMode'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Test Mode'),
+    ];
 
     return $form;
   }
@@ -143,6 +148,7 @@ class CommerceUps extends ShippingMethodBase {
       $this->configuration['access_key'] = $values['access_key'];
       $this->configuration['user_id'] = $values['user_id'];
       $this->configuration['password'] = $values['password'];
+      $this->configuration['testMode'] = $values['testMode'];
 
     }
     parent::submitConfigurationForm($form, $form_state);

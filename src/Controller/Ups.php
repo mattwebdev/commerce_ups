@@ -25,6 +25,7 @@ class Ups {
 
   public function __construct($configuration) {
     $this->configuration = $configuration;
+
   }
 
   public function getUpsRate(ShipmentInterface $shipment) {
@@ -33,12 +34,19 @@ class Ups {
       $accessKey = $this->configuration['access_key'];
       $userId = $this->configuration['user_id'];
       $password = $this->configuration['password'];
+
+      if($this->configuration['testMode'] == 1) {
+        $useIntegration = TRUE;
+      } else {
+        $useIntegration = FALSE;
+      }
+
       // Commerce Data.
       $store = $shipment->getOrder()->getStore();
       /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
       $ShippingProfileAddress = $shipment->getShippingProfile()->get('address')->first();
 
-      $rate = new Rate($accessKey, $userId, $password);
+      $rate = new Rate($accessKey, $userId, $password,$useIntegration);
       // UPS Shippment object.
       $shipmentObject = new Shipment();
 
