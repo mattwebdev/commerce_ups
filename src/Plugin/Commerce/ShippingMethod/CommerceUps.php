@@ -169,6 +169,7 @@ class CommerceUps extends ShippingMethodBase {
     else {
       // @todo Make that class a service.
       $ups = new Ups();
+      // @todo this might be better as part of the "buildShipToAddress" method... but it works for now.
       $verify = $ups->verifySimpleAddress($ups->buildShipToAddress($shipment), $this->configuration);
       if ($verify[0]->Rank == 1) {
         $UpsRates = $ups->getUpsRate($shipment, $this->configuration);
