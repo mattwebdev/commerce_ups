@@ -262,7 +262,7 @@ class Ups {
    * @return \Exception | AddressValidation
    */
   public function verifyAddress(Address $address, $configuration) {
-    $validation = new AddressValidation($configuration['accessKey'], $configuration['userId'], $configuration['password']);
+    $validation = new AddressValidation($configuration['access_key'], $configuration['user_id'], $configuration['password']);
     try {
       $response = $validation->validate($address);
     }
