@@ -1,9 +1,8 @@
 <?php
+
 namespace Drupal\commerce_ups\Controller;
 
-
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
-use Psy\Exception\Exception;
 use Ups\Entity\Address;
 use Ups\Entity\Dimensions;
 use Ups\Entity\Package;
@@ -14,26 +13,27 @@ use Ups\Entity\Shipment;
 use Ups\Entity\UnitOfMeasurement;
 use Ups\Rate;
 
-// @todo Move this into root /src directory, define as a service.
-class ups {
+/**
+ * @todo Move this into root /src directory, define as a service.
+ */
+class Ups {
 
-  // @todo getRate, camel case.
-  public function GetUPSRate(ShipmentInterface $shipment, $configuration) {
+  public function getUpsRate(ShipmentInterface $shipment, $configuration) {
     try {
-      //UPS Access
+      // UPS Access.
       $accessKey = $configuration['access_key'];
       $userId = $configuration['user_id'];
       $password = $configuration['password'];
-      //Commerce Data
+      // Commerce Data.
       $store = $shipment->getOrder()->getStore();
       /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
       $ShippingProfileAddress = $shipment->getShippingProfile()->get('address')->first();
 
       $rate = new Rate($accessKey, $userId, $password);
-      //UPS Shippment object
+      // UPS Shippment object.
       $shipmentObject = new Shipment();
 
-      //set Shipper address
+      // Set Shipper address.
       $shipperAddress = $shipmentObject->getShipper()->getAddress();
       $shipperAddress->setAddressLine1($store->getAddress()->getAddressLine1());
       $shipperAddress->setAddressLine2($store->getAddress()->getAddressLine2());
@@ -42,16 +42,16 @@ class ups {
       $shipperAddress->setPostalCode($store->getAddress()->getPostalCode());
       $shipperAddress->setCountryCode($store->getAddress()->getCountryCode());
 
-      //set ShipFrom
+      // Set ShipFrom.
       $ShipFrom = new ShipFrom();
       $ShipFrom->setAddress($shipperAddress);
 
-      //set ShipTO
+      // Set ShipTO.
       $ShipTo = $shipmentObject->getShipTo();
       $ShipTo->setCompanyName($ShippingProfileAddress->getOrganization());
-      $ShipTo->setAddress($this->BuildShipToAddress($shipment));
+      $ShipTo->setAddress($this->buildShipToAddress($shipment));
 
-      $package = $this->BuildPackage($shipment);
+      $package = $this->buildPackage($shipment);
       $shipmentObject->addPackage($package);
 
       $rateRequest = $rate->shopRates($shipmentObject);
@@ -69,11 +69,8 @@ class ups {
    *
    * @return \Ups\Entity\Address
    * @internal param \Ups\Entity\Shipment $ShipmentObject
-   *
-   * @todo camel case, buildShipToAddress
-   *
    */
-  public function BuildShipToAddress(ShipmentInterface $shipment) {
+  public function buildShipToAddress(ShipmentInterface $shipment) {
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
     $ShippingProfileAddress = $shipment->getShippingProfile()->get('address')->first();
     $ShipToAddress = new Address();
@@ -85,9 +82,8 @@ class ups {
     return $ShipToAddress;
   }
 
-  // @todo camel case, buildPackage
-  public function BuildPackage(ShipmentInterface $shipment) {
-    //Set Package
+  public function buildPackage(ShipmentInterface $shipment) {
+    // Set Package.
     $package = new Package();
     $package->getPackagingType()->setCode(PackagingType::PT_PACKAGE);
 
@@ -127,11 +123,11 @@ class ups {
     $unit = new UnitOfMeasurement();
     $orderItems = $shipment->getOrder()->getItems();
     foreach ($orderItems as $item) {
-      //we only need one unit because a package must have all the same weight unit so the last one is just as good as any.
+      // We only need one unit because a package must have all the same weight unit so the last one is just as good as any.
       $ItemUnit = $item->getPurchasedEntity()
         ->get('weight')->unit;
     }
-    //making sure that at least 1 item is in the order...if not, set to pounds.
+    // Making sure that at least 1 item is in the order...if not, set to pounds.
     if (!isset($ItemUnit)) {
       $unit->setCode(UnitOfMeasurement::PROD_POUNDS);
 
@@ -148,8 +144,11 @@ class ups {
     return $unit;
   }
 
+  /**
+   *
+   */
   public function setDimensions(ShipmentInterface $shipment) {
-    //Set Dims
+    // Set Dims.
     $dimensions = new Dimensions();
     $dimensions->setHeight($this->getPackageHeight($shipment));
     $dimensions->setWidth($this->getPackageWidth($shipment));
@@ -167,7 +166,7 @@ class ups {
   public function getPackageHeight(ShipmentInterface $shipment) {
     $items = $shipment->getOrder()->getItems();
     $heights = [];
-    foreach($items as $item) {
+    foreach ($items as $item) {
       $heights[] = floatval($item->getPurchasedEntity()->get('dimensions')->first()->getHeight()->getNumber());
     }
     return max($heights);
@@ -181,7 +180,7 @@ class ups {
   public function getPackageWidth(ShipmentInterface $shipment) {
     $items = $shipment->getOrder()->getItems();
     $widths = [];
-    foreach($items as $item) {
+    foreach ($items as $item) {
       $widths[] = floatval($item->getPurchasedEntity()->get('dimensions')->first()->getWidth()->getNumber());
     }
 
@@ -197,7 +196,7 @@ class ups {
   public function getPackageLength(ShipmentInterface $shipment) {
     $items = $shipment->getOrder()->getItems();
     $lengths = [];
-    foreach($items as $item) {
+    foreach ($items as $item) {
       $lengths[] = floatval($item->getPurchasedEntity()->get('dimensions')->first()->getLength()->getNumber());
     }
 
@@ -205,38 +204,48 @@ class ups {
 
   }
 
+  /**
+   *
+   */
   public function setDimUnit() {
-    //Set Unit
-    $unit = new UnitOfMeasurement;
+    // Set Unit.
+    $unit = new UnitOfMeasurement();
     $unit->setCode(UnitOfMeasurement::UOM_IN);
 
     return $unit;
   }
 
-  public function TranslateServiceCodeToString($serviceCode) {
+  public function translateServiceCodeToString($serviceCode) {
     switch ($serviceCode) {
-      //Domestic
+      // Domestic.
       case 14:
         $service = "UPS Next Day Air Early";
         break;
+
       case 01:
         $service = "UPS Next Day Air";
         break;
+
       case 13:
         $service = "UPS Next Day Air Saver";
         break;
+
       case 59:
         $service = "UPS 2nd Day Air A.M.";
         break;
+
       case 02:
         $service = "UPS 2nd Day Air";
         break;
+
       case 12:
         $service = "UPS 3 Day Select";
         break;
+
       case 03:
         $service = "UPS Ground";
         break;
+
       default:
         $service = "UPS Ground";
         break;

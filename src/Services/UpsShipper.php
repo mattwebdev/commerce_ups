@@ -1,14 +1,17 @@
 <?php
+
 namespace Drupal\commerce_ups\Services;
 
 use Ups\Entity\Address;
 use Ups\Entity\Shipper;
 
-// @todo any reason to use this versus manual construction?
-class UPSShipper {
+/**
+ * @todo any reason to use this versus manual construction?
+ */
+class UpsShipper {
 
   /**
-   * UPSShipper constructor.
+   * UpsShipper constructor.
    *
    * @param $name
    * @param $companyName
@@ -28,4 +31,5 @@ class UPSShipper {
     $shipper->setAddress($Address);
 
   }
+
 }

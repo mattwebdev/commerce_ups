@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\commerce_ups\Services;
 
 use Ups\Entity\Package;
@@ -6,8 +7,10 @@ use Ups\Entity\Shipment;
 use Ups\Entity\Shipper;
 use Ups\Entity\ShipTo;
 
-// @todo this should not be a service, dynamic constructor.
-class UPSShipment {
+/**
+ * @todo this should not be a service, dynamic constructor.
+ */
+class UpsShipment {
 
   protected $shipment;
   protected $Shipper;
@@ -22,13 +25,13 @@ class UPSShipment {
    * @param \Ups\Entity\Package $package
    */
   public function __construct(Shipper $Shipper, ShipTo $ShipToAddress, Package $package) {
-    //setup definitions
+    // Setup definitions.
     $this->Shipper = $Shipper;
     $this->ShipToAddress = $ShipToAddress;
     $this->package = $package;
     $this->shipment = new Shipment();
 
-    //setup shipment object with default values.
+    // Setup shipment object with default values.
     $this->shipment->setShipper($this->Shipper);
     $this->shipment->setShipTo($this->ShipToAddress);
     $this->shipment->addPackage($this->package);

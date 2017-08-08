@@ -7,9 +7,9 @@ use Ups\Entity\Shipment;
 use Ups\Rate;
 
 /**
- * Class UPSRequest.
+ * Class UpsRequest.
  */
-class UPSRequest {
+class UpsRequest {
 
   /**
    * Commerce UPS Logger Channel.
@@ -25,7 +25,7 @@ class UPSRequest {
   protected $rate;
 
   /**
-   * Constructs a new UPSRequest object.
+   * Constructs a new UpsRequest object.
    *
    * @param \Psr\Log\LoggerInterface $logger
    * @param \Ups\Entity\Shipment $shipment
