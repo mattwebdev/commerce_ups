@@ -3,6 +3,8 @@
 namespace Drupal\commerce_ups\Controller;
 
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
+use Exception;
+use Ups\AddressValidation;
 use Ups\Entity\Address;
 use Ups\Entity\Dimensions;
 use Ups\Entity\Package;
@@ -251,6 +253,24 @@ class Ups {
         break;
     }
     return $service;
+  }
+
+  /**
+   * @param \Ups\Entity\Address $address
+   * @param $configuration
+   *
+   * @return \Exception | AddressValidation
+   */
+  public function verifyAddress(Address $address, $configuration) {
+    $validation = new AddressValidation($configuration['accessKey'], $configuration['userId'], $configuration['password']);
+    try {
+      $response = $validation->validate($address);
+    }
+    catch (Exception $e) {
+      $response = $e;
+    }
+
+    return $response;
   }
 
 }
