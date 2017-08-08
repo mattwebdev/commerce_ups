@@ -14,6 +14,7 @@ use Ups\Entity\ShipFrom;
 use Ups\Entity\Shipment;
 use Ups\Entity\UnitOfMeasurement;
 use Ups\Rate;
+use Ups\SimpleAddressValidation;
 
 /**
  * @todo Move this into root /src directory, define as a service.
@@ -259,18 +260,16 @@ class Ups {
    * @param \Ups\Entity\Address $address
    * @param $configuration
    *
-   * @return \Exception | AddressValidation
+   * @return array
    */
-  public function verifyAddress(Address $address, $configuration) {
-    $validation = new AddressValidation($configuration['access_key'], $configuration['user_id'], $configuration['password']);
+  public function verifySimpleAddress(Address $address, $configuration) {
+    $av = new SimpleAddressValidation($configuration['access_key'], $configuration['user_id'], $configuration['password']);
     try {
-      $response = $validation->validate($address);
+      $validation = $av->validate($address);
+    } catch (Exception $e) {
+      var_dump($e);
     }
-    catch (Exception $e) {
-      $response = $e;
-    }
-
-    return $response;
+    return $validation;
   }
 
 }

@@ -10,6 +10,7 @@ use Drupal\commerce_shipping\ShippingRate;
 use Drupal\commerce_shipping\ShippingService;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\commerce_ups\Controller\Ups;
+use Exception;
 
 /**
  * @CommerceShippingMethod(
@@ -168,30 +169,33 @@ class CommerceUps extends ShippingMethodBase {
     else {
       // @todo Make that class a service.
       $ups = new Ups();
-      $UpsRates = $ups->getUpsRate($shipment, $this->configuration);
-      foreach ($UpsRates as $upsRateObject) {
-        foreach ($upsRateObject as $upsRate) {
-          $cost = $upsRate->TotalCharges->MonetaryValue;
-          $currency = $upsRate->TotalCharges->CurrencyCode;
+      $verify = $ups->verifySimpleAddress($ups->buildShipToAddress($shipment), $this->configuration);
+      if ($verify[0]->Rank == 1) {
+        $UpsRates = $ups->getUpsRate($shipment, $this->configuration);
+        foreach ($UpsRates as $upsRateObject) {
+          foreach ($upsRateObject as $upsRate) {
+            $cost = $upsRate->TotalCharges->MonetaryValue;
+            $currency = $upsRate->TotalCharges->CurrencyCode;
 
-          $price = new Price((string) $cost, $currency);
-          $ServiceCode = $upsRate->Service->getCode();
+            $price = new Price((string) $cost, $currency);
+            $ServiceCode = $upsRate->Service->getCode();
 
-          $shippingService = new ShippingService(
-            $ServiceCode,
-            $ups->translateServiceCodeToString($ServiceCode)
-          );
+            $shippingService = new ShippingService(
+              $ServiceCode,
+              $ups->translateServiceCodeToString($ServiceCode)
+            );
 
-          $rates[] = new ShippingRate(
-            $ServiceCode,
-            $shippingService,
-            $price
-          );
+            $rates[] = new ShippingRate(
+              $ServiceCode,
+              $shippingService,
+              $price
+            );
 
+          }
         }
       }
     }
     return $rates;
   }
-
 }
+
