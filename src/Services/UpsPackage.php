@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\commerce_ups\Services;
 
 use Ups\Entity\Dimensions as PackageDimensions;
@@ -6,13 +7,15 @@ use Ups\Entity\Package;
 use Ups\Entity\PackageWeight;
 use Ups\Entity\PackagingType;
 
-// @todo any reason to use this versus manually building object elsewhere?
-// @todo is this used?
-// @todo this shouldn't be marked as a service, since it has dynamic non-service constructor.
-class UPSPackage {
+/**
+ * @todo any reason to use this versus manually building object elsewhere?
+ * @todo is this used?
+ * @todo this shouldn't be marked as a service, since it has dynamic non-service constructor.
+ */
+class UpsPackage {
 
   /**
-   * UPSPackage constructor.
+   * UpsPackage constructor.
    *
    * @param \Ups\Entity\PackagingType $packageType
    * @param \Ups\Entity\Dimensions $dimensions
@@ -25,7 +28,11 @@ class UPSPackage {
     $package->setPackageWeight($weight);
   }
 
+  /**
+   *
+   */
   public function getPackagingType() {
 
   }
+
 }

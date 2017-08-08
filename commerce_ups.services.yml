@@ -1,16 +1,16 @@
 services:
   commerce_ups.ups_request:
-    class: Drupal\commerce_ups\UPSRequest
+    class: Drupal\commerce_ups\UpsRequest
     arguments: []
   commerce_ups.ups_shipment:
-      class: Drupal\commerce_ups\Services\UPSShipment
+      class: Drupal\commerce_ups\Services\UpsShipment
       arguments: []
   commerce_ups.ups_package:
-      class: Drupal\commerce_ups\Services\UPSPackage
+      class: Drupal\commerce_ups\Services\UpsPackage
       arguments: []
   commerce_ups.ups_track:
-      class: Drupal\commerce_ups\Services\UPSTrack
+      class: Drupal\commerce_ups\Services\UpsTrack
       arguments: []
   commerce_ups.ups_physical:
-      class: Drupal\commerce_ups\Services\UPSPhysical
+      class: Drupal\commerce_ups\Services\UpsPhysical
       arguments: []

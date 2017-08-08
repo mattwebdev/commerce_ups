@@ -1,12 +1,19 @@
 <?php
+
 namespace Drupal\commerce_ups\Services;
 
 use Exception;
 use Ups\AddressValidation;
 use Ups\Entity\Address;
 
-class UPSAddress {
+/**
+ *
+ */
+class UpsAddress {
 
+  /**
+   *
+   */
   public function __construct($addressLine1, $addressLine2, $city, $state, $zip, $country) {
     $address = new Address();
     $address->setAddressLine1($addressLine1);
@@ -29,7 +36,8 @@ class UPSAddress {
     $validation = new AddressValidation($configuration['accessKey'], $configuration['userId'], $configuration['password']);
     try {
       $response = $validation->validate($address);
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       $response = $e;
     }
 

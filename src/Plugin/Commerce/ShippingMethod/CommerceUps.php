@@ -9,7 +9,7 @@ use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
 use Drupal\commerce_shipping\ShippingService;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\commerce_ups\Controller\ups;
+use Drupal\commerce_ups\Controller\Ups;
 
 /**
  * @CommerceShippingMethod(
@@ -33,7 +33,7 @@ use Drupal\commerce_ups\Controller\ups;
  *   },
  * )
  */
-class CommerceUPS extends ShippingMethodBase {
+class CommerceUps extends ShippingMethodBase {
 
   /**
    * The package type manager.
@@ -72,6 +72,9 @@ class CommerceUPS extends ShippingMethodBase {
     $this->setConfiguration($configuration);
   }
 
+  /**
+   *
+   */
   public function getServices() {
     // Filter out shipping services disabled by the merchant.
     return array_intersect_key($this->services, array_flip($this->configuration['services']));
@@ -82,10 +85,10 @@ class CommerceUPS extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-        'access_key' => '',
-        'user_id' => '',
-        'password' => '',
-      ] + parent::defaultConfiguration();
+      'access_key' => '',
+      'user_id' => '',
+      'password' => '',
+    ] + parent::defaultConfiguration();
   }
 
   /**
@@ -156,7 +159,7 @@ class CommerceUPS extends ShippingMethodBase {
    * {@inheritdoc}
    */
   public function calculateRates(ShipmentInterface $shipment) {
-    //Rates Array
+    // Rates Array.
     $rates = [];
 
     if ($shipment->getShippingProfile()->get('address')->isEmpty()) {
@@ -164,8 +167,8 @@ class CommerceUPS extends ShippingMethodBase {
     }
     else {
       // @todo Make that class a service.
-      $ups = new ups;
-      $UpsRates = $ups->GetUPSRate($shipment,$this->configuration);
+      $ups = new Ups();
+      $UpsRates = $ups->getUpsRate($shipment, $this->configuration);
       foreach ($UpsRates as $upsRateObject) {
         foreach ($upsRateObject as $upsRate) {
           $cost = $upsRate->TotalCharges->MonetaryValue;
@@ -176,7 +179,7 @@ class CommerceUPS extends ShippingMethodBase {
 
           $shippingService = new ShippingService(
             $ServiceCode,
-            $ups->TranslateServiceCodeToString($ServiceCode)
+            $ups->translateServiceCodeToString($ServiceCode)
           );
 
           $rates[] = new ShippingRate(
@@ -190,4 +193,5 @@ class CommerceUPS extends ShippingMethodBase {
     }
     return $rates;
   }
+
 }

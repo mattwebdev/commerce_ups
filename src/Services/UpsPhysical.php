@@ -1,12 +1,17 @@
 <?php
+
 namespace Drupal\commerce_ups\Services;
+
 use Drupal\physical\Measurement;
 use Drupal\physical\Weight;
 use Ups\Entity\Dimensions as PackageDimensions;
 use Ups\Entity\PackageWeight;
 use Ups\Entity\UnitOfMeasurement;
 
-class UPSPhysical {
+/**
+ *
+ */
+class UpsPhysical {
 
   /**
    * @param \Drupal\physical\Weight $weight
@@ -31,7 +36,7 @@ class UPSPhysical {
    */
   public function getDimensions(Measurement $height, Measurement $length, Measurement $width) {
     $UPSDimensions = new PackageDimensions();
-    $UPSDimensions->setUnitOfMeasurement($this->translateUnitOfMeasurement($height,$length,$width));
+    $UPSDimensions->setUnitOfMeasurement($this->translateUnitOfMeasurement($height, $length, $width));
     $UPSDimensions->setHeight($height->getNumber());
     $UPSDimensions->setLength($length->getNumber());
     $UPSDimensions->setWidth($width->getNumber());
@@ -45,12 +50,11 @@ class UPSPhysical {
    * @param \Drupal\physical\Measurement $width
    *
    * @return \Ups\Entity\UnitOfMeasurement
-   *
    */
   public function translateUnitOfMeasurement(Measurement $height, Measurement $length, Measurement $width) {
-    $equality = $this->checkUnitEquality($height,$length,$width);
+    $equality = $this->checkUnitEquality($height, $length, $width);
     $UPSUnit = new UnitOfMeasurement();
-    if($equality != 0) {
+    if ($equality != 0) {
       \Drupal::logger('commerce_ups')->warning("Units are not equal, using Height as the basic unit");
     }
     $UPSUnit->setCode($height->getUnit());
@@ -70,11 +74,16 @@ class UPSPhysical {
     return $UPSWeightUnit;
   }
 
+  /**
+   *
+   */
   protected function checkUnitEquality(Measurement $height, Measurement $length, Measurement $width) {
-    if(($height->getUnit() == $length->getUnit()) && ($length->getUnit() == $width->getUnit())) {
+    if (($height->getUnit() == $length->getUnit()) && ($length->getUnit() == $width->getUnit())) {
       return 0;
-    } else {
+    }
+    else {
       return 1;
     }
   }
+
 }

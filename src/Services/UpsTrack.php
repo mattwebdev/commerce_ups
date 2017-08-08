@@ -1,12 +1,17 @@
 <?php
+
 namespace Drupal\commerce_ups\Services;
 
-class UPSTrack {
+/**
+ *
+ */
+class UpsTrack {
 
   /**
-   * UPSTrack constructor.
+   * UpsTrack constructor.
    */
   public function __construct() {
 
   }
+
 }
