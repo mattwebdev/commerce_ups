@@ -1,15 +1,40 @@
 commerce_shipping.commerce_shipping_method.plugin.ups:
   type: commerce_shipping_method_configuration
   mapping:
-    access_key:
-      type: string
-      label: 'Access Key'
-    user_id:
-      type: string
-      label: 'User ID'
-    password:
-      type: string
-      label: 'Password'
-    testMode:
-      type: boolean
-      label: 'Test Mode'
+    api_information:
+      label: 'API information'
+      type: mapping
+      mapping:
+        access_key:
+          type: string
+          label: 'Access Key'
+        user_id:
+          type: string
+          label: 'User ID'
+        password:
+          type: string
+          label: 'Password'
+        mode:
+          type: boolean
+          label: 'Choose whether to use the test or live mode'
+    options:
+      type: mapping
+      label: 'UPS Options'
+      mapping:
+        packaging:
+          type: label
+          label: 'Packaging Strategy'
+        log:
+          type: mapping
+          label: 'Log the following messages for debugging'
+          mapping:
+            request:
+              type: field.value.boolean
+              mapping:
+                value:
+                  label: 'API request messages'
+            response:
+              type: field.value.boolean
+              mapping:
+                value:
+                  label: 'API response messages'

@@ -31,11 +31,11 @@ class Ups {
   public function getUpsRate(ShipmentInterface $shipment) {
     try {
       // UPS Access.
-      $accessKey = $this->configuration['access_key'];
-      $userId = $this->configuration['user_id'];
-      $password = $this->configuration['password'];
+      $accessKey = $this->configuration['api_information']['access_key'];
+      $userId = $this->configuration['api_information']['user_id'];
+      $password = $this->configuration['api_information']['password'];
 
-      if($this->configuration['testMode'] == 1) {
+      if($this->configuration['api_information']['mode'] == 'live') {
         $useIntegration = TRUE;
       } else {
         $useIntegration = FALSE;
@@ -290,7 +290,7 @@ class Ups {
    */
   public function verifySimpleAddress(Address $address) {
     $validation = [];
-    $av = new SimpleAddressValidation($this->configuration['access_key'], $this->configuration['user_id'], $this->configuration['password']);
+    $av = new SimpleAddressValidation($this->configuration['api_information']['access_key'], $this->configuration['api_information']['user_id'], $this->configuration['api_information']['password']);
     try {
       $validation = $av->validate($address);
     } catch (Exception $e) {

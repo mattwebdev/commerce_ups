@@ -35,6 +35,10 @@ use Exception;
  * )
  */
 class CommerceUps extends ShippingMethodBase {
+  /**
+   * Package All items in one box, ignoring dimensions.
+   */
+  const PACKAGE_ALL_IN_ONE = 'allinone';
 
   /**
    * The package type manager.
@@ -86,10 +90,16 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-      'access_key' => '',
-      'user_id' => '',
-      'password' => '',
-      'testMode'
+      'api_information' => [
+        'access_key' => '',
+        'user_id' => '',
+        'password' => '',
+        'mode' => 'test',
+      ],
+      'options' => [
+        'packaging' => static::PACKAGE_ALL_IN_ONE,
+        'log' => [],
+      ],
     ] + parent::defaultConfiguration();
   }
 
@@ -99,30 +109,70 @@ class CommerceUps extends ShippingMethodBase {
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
 
-    $form['access_key'] = [
+    $form['api_information'] = [
+      '#type' => 'details',
+      '#title' => $this->t('API information'),
+      '#description' => $this->isConfigured() ? $this->t('Update your UPS API information.') : $this->t('Fill in your UPS API information.'),
+      '#weight' => $this->isConfigured() ? 10 : -10,
+      '#open' => !$this->isConfigured(),
+    ];
+
+    $form['api_information']['access_key'] = [
       '#type' => 'textfield',
       '#title' => t('Access Key'),
       '#description' => t(''),
-      '#default_value' => $this->configuration['access_key'],
+      '#default_value' => $this->configuration['api_information']['access_key'],
       '#required' => TRUE,
     ];
-    $form['user_id'] = [
+    $form['api_information']['user_id'] = [
       '#type' => 'textfield',
       '#title' => t('User ID'),
       '#description' => t(''),
-      '#default_value' => $this->configuration['user_id'],
+      '#default_value' => $this->configuration['api_information']['user_id'],
       '#required' => TRUE,
     ];
-    $form['password'] = [
+    $form['api_information']['password'] = [
       '#type' => 'textfield',
       '#title' => t('Password'),
       '#description' => t(''),
-      '#default_value' => $this->configuration['password'],
+      '#default_value' => $this->configuration['api_information']['password'],
       '#required' => TRUE,
     ];
-    $form['testMode'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Test Mode'),
+    $form['api_information']['mode'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Mode'),
+      '#description' => $this->t('Choose whether to use the test or live mode.'),
+      '#options' => [
+        'test' => $this->t('Test'),
+        'live' => $this->t('Live'),
+      ],
+      '#default_value' => $this->configuration['api_information']['mode'],
+    ];
+
+    $form['options'] = [
+      '#type' => 'details',
+      '#title' => $this->t('UPS Options'),
+      '#description' => $this->t('Additional options for UPS'),
+    ];
+    // @todo: Add other options.
+    $form['options']['packaging'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Packaging strategy'),
+      '#description' => $this->t('Select your packaging strategy. "All items in one box" will ignore package type and product dimensions.'),
+      '#options' => [
+        static::PACKAGE_ALL_IN_ONE => $this->t("All items in one box"),
+      ],
+      '#required' => TRUE,
+      '#default_value' => $this->configuration['options']['packaging'],
+    ];
+    $form['options']['log'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Log the following messages for debugging'),
+      '#options' => [
+        'request' => $this->t('API request messages'),
+        'response' => $this->t('API response messages'),
+      ],
+      '#default_value' => $this->configuration['options']['log'],
     ];
 
     return $form;
@@ -145,10 +195,15 @@ class CommerceUps extends ShippingMethodBase {
 
       $values = $form_state->getValue($form['#parents']);
 
-      $this->configuration['access_key'] = $values['access_key'];
-      $this->configuration['user_id'] = $values['user_id'];
-      $this->configuration['password'] = $values['password'];
-      $this->configuration['testMode'] = $values['testMode'];
+      $this->configuration['api_information']['access_key'] = $values['api_information']['access_key'];
+      $this->configuration['api_information']['user_id'] = $values['api_information']['user_id'];
+      if (!empty($values['api_information']['password'])) {
+        $this->configuration['api_information']['password'] = $values['api_information']['password'];
+      }
+      $this->configuration['api_information']['mode'] = $values['api_information']['mode'];
+
+      $this->configuration['options']['packaging'] = $values['options']['packaging'];
+      $this->configuration['options']['log'] = $values['options']['log'];
 
     }
     parent::submitConfigurationForm($form, $form_state);
@@ -200,6 +255,22 @@ class CommerceUps extends ShippingMethodBase {
         }
       }
     return $rates;
+  }
+
+  /**
+   * Determine if we have the minimum information to connect to UPS.
+   *
+   * @return bool
+   *   TRUE if there is enough information to connect, FALSE otherwise.
+   */
+  protected function isConfigured() {
+    $api_information = $this->configuration['api_information'];
+
+    return (
+      !empty($api_information['access_key'])
+      && !empty($api_information['user_id'])
+      && !empty($api_information['password'])
+    );
   }
 }
 
