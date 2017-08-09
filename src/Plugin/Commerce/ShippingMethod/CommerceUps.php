@@ -17,20 +17,20 @@ use Exception;
  *  id = "ups",
  *  label = @Translation("UPS"),
  *  services = {
- *   "UPS Next Day Air",
- *   "UPS Second Day Air",
- *   "UPS Ground",
- *   "UPS Worldwide Express",
- *   "UPS Worldwide Expedited",
- *   "UPS Standard",
- *   "UPS Three-Day Select",
- *   "Next Day Air Saver",
- *   "UPS Next Day Air Early AM",
- *   "UPS Worldwide Express Plus",
- *   "UPS Second Day Air AM",
- *   "UPS Saver",
- *   "UPS Access Point Economy",
- *   "UPS Sure Post"
+ *   "UPS_NEXT_DAY_AIR" = @translation("UPS Next Day Air"),
+ *   "UPS_SECOND_DAY_AIR" = @translation("UPS Second Day Air"),
+ *   "UPS_GROUND" = @translation("UPS Ground"),
+ *   "UPS_WORLDWIDE_EXPRESS" = @translation("UPS Worldwide Express"),
+ *   "UPS_WORLDWIDE_EXPEDITED" = @translation("UPS Worldwide Expedited"),
+ *   "UPS_STANDARD" = @translation("UPS Standard"),
+ *   "UPS_THREE-DAY_SELECT" = @translation("UPS Three-Day Select"),
+ *   "UPS_NEXT_DAY_AIR_SAVER" = @translation("Next Day Air Saver"),
+ *   "UPS_NEXT_DAY_AIR_EARLY_AM" = @translation("UPS Next Day Air Early AM"),
+ *   "UPS_WORLDWIDE_EXPRESS_PLUS" = @translation("UPS Worldwide Express Plus"),
+ *   "UPS_SECOND_DAY_AIR_AM" = @translation("UPS Second Day Air AM"),
+ *   "UPS_SAVER" = @translation("UPS Saver"),
+ *   "UPS_ACCESS_POINT_ECONOMY" = @translation("UPS Access Point Economy"),
+ *   "UPS_SURE_POST" = @translation("UPS Sure Post"),
  *   },
  * )
  */
@@ -183,9 +183,10 @@ class CommerceUps extends ShippingMethodBase {
 
             $price = new Price((string) $cost, $currency);
             $ServiceCode = $upsRate->Service->getCode();
+            $ServiceName = $upsRate->Service->getName();
 
             $shippingService = new ShippingService(
-              $ServiceCode,
+              $ServiceName,
               $ups->translateServiceCodeToString($ServiceCode)
             );
 
