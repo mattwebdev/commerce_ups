@@ -124,11 +124,13 @@ class CommerceUps extends ShippingMethodBase {
     $form['testMode'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Test Mode'),
+      '#default_value' => $this->configuration['testMode'],
     ];
 
     $form['nRate'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Use Negotiated Rates'),
+      '#default_value' => $this->configuration['nRate'],
     ];
 
     return $form;
