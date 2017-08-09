@@ -10,6 +10,7 @@ use Ups\Entity\Dimensions;
 use Ups\Entity\Package;
 use Ups\Entity\PackageWeight;
 use Ups\Entity\PackagingType;
+use Ups\Entity\RateInformation;
 use Ups\Entity\ShipFrom;
 use Ups\Entity\Shipment;
 use Ups\Entity\UnitOfMeasurement;
@@ -34,6 +35,9 @@ class Ups {
       $accessKey = $this->configuration['access_key'];
       $userId = $this->configuration['user_id'];
       $password = $this->configuration['password'];
+
+      //sets setNegotiatedRatesIndicator to 1 or 0 based on configuration
+      $this->checkForNegotiatedRates();
 
       if($this->configuration['testMode'] == 1) {
         $useIntegration = TRUE;
@@ -77,6 +81,18 @@ class Ups {
       $rateRequest = $e;
     }
     return $rateRequest;
+  }
+
+  public function checkForNegotiatedRates() {
+    $rateInformation = new RateInformation;
+
+    if($this->configuration['nRates'] == 1) {
+      $rateInformation->setNegotiatedRatesIndicator(1);
+    } else {
+      $rateInformation->setNegotiatedRatesIndicator(0);
+    }
+
+    return $rateInformation;
   }
 
   /**

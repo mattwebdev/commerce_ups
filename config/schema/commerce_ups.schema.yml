@@ -13,3 +13,6 @@ commerce_shipping.commerce_shipping_method.plugin.ups:
     testMode:
       type: boolean
       label: 'Test Mode'
+    nRate:
+      type: boolean
+      label: 'Negotiated Rate'

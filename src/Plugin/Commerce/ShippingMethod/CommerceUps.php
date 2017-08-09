@@ -89,7 +89,8 @@ class CommerceUps extends ShippingMethodBase {
       'access_key' => '',
       'user_id' => '',
       'password' => '',
-      'testMode'
+      'testMode' => '',
+      'nRate' => '',
     ] + parent::defaultConfiguration();
   }
 
@@ -125,6 +126,11 @@ class CommerceUps extends ShippingMethodBase {
       '#title' => $this->t('Test Mode'),
     ];
 
+    $form['nRate'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Use Negotiated Rates'),
+    ];
+
     return $form;
   }
 
@@ -149,6 +155,7 @@ class CommerceUps extends ShippingMethodBase {
       $this->configuration['user_id'] = $values['user_id'];
       $this->configuration['password'] = $values['password'];
       $this->configuration['testMode'] = $values['testMode'];
+      $this->configuration['nRate'] = $values['nRate'];
 
     }
     parent::submitConfigurationForm($form, $form_state);
