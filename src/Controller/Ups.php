@@ -86,7 +86,7 @@ class Ups {
   public function checkForNegotiatedRates() {
     $rateInformation = new RateInformation;
 
-    if($this->configuration['nRates'] == 1) {
+    if($this->configuration['nRate'] == 1) {
       $rateInformation->setNegotiatedRatesIndicator(1);
     } else {
       $rateInformation->setNegotiatedRatesIndicator(0);
