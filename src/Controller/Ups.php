@@ -77,6 +77,12 @@ class Ups {
       $rateRequest = $e;
     }
     return $rateRequest;
+  }
+
+  /**
+   * stub function for sending shippment to UPS.
+   */
+  public function sendShippment() {
 
   }
 
@@ -85,7 +91,6 @@ class Ups {
    * @param \Ups\Entity\Shipment $shipmentObject
    *
    * @return \Ups\Entity\Address
-   * @internal param \Ups\Entity\Shipment $ShipmentObject
    */
   public function buildShipToAddress(ShipmentInterface $shipment) {
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */

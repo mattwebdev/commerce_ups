@@ -10,3 +10,6 @@ commerce_shipping.commerce_shipping_method.plugin.ups:
     password:
       type: string
       label: 'Password'
+    testMode:
+      type: boolean
+      label: 'Test Mode'
