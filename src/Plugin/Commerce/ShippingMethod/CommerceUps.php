@@ -2,15 +2,13 @@
 
 namespace Drupal\commerce_ups\Plugin\Commerce\ShippingMethod;
 
-use Drupal\commerce_price\Price;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\PackageTypeManagerInterface;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
-use Drupal\commerce_shipping\ShippingService;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\commerce_ups\Controller\Ups;
-use Exception;
+use Drupal\commerce_ups\UPSRateRequest;
+
 
 /**
  * @CommerceShippingMethod(
@@ -36,25 +34,6 @@ use Exception;
  */
 class CommerceUps extends ShippingMethodBase {
   /**
-   * Package All items in one box, ignoring dimensions.
-   */
-  const PACKAGE_ALL_IN_ONE = 'allinone';
-
-  /**
-   * The package type manager.
-   *
-   * @var \Drupal\commerce_shipping\PackageTypeManagerInterface
-   */
-  protected $packageTypeManager;
-
-  /**
-   * The shipping services.
-   *
-   * @var \Drupal\commerce_shipping\ShippingService[]
-   */
-  protected $services = [];
-
-  /**
    * Constructs a new ShippingMethodBase object.
    *
    * @param array $configuration
@@ -70,19 +49,6 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, PackageTypeManagerInterface $packageTypeManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $packageTypeManager);
-    $this->packageTypeManager = $packageTypeManager;
-    foreach ($this->pluginDefinition['services'] as $id => $label) {
-      $this->services[$id] = new ShippingService($id, (string) $label);
-    }
-    $this->setConfiguration($configuration);
-  }
-
-  /**
-   *
-   */
-  public function getServices() {
-    // Filter out shipping services disabled by the merchant.
-    return array_intersect_key($this->services, array_flip($this->configuration['services']));
   }
 
   /**
@@ -154,17 +120,6 @@ class CommerceUps extends ShippingMethodBase {
       '#title' => $this->t('UPS Options'),
       '#description' => $this->t('Additional options for UPS'),
     ];
-    // @todo: Add other options.
-    $form['options']['packaging'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Packaging strategy'),
-      '#description' => $this->t('Select your packaging strategy. "All items in one box" will ignore package type and product dimensions.'),
-      '#options' => [
-        static::PACKAGE_ALL_IN_ONE => $this->t("All items in one box"),
-      ],
-      '#required' => TRUE,
-      '#default_value' => $this->configuration['options']['packaging'],
-    ];
     $form['options']['log'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Log the following messages for debugging'),
@@ -209,52 +164,53 @@ class CommerceUps extends ShippingMethodBase {
     parent::submitConfigurationForm($form, $form_state);
   }
 
+
   /**
-   * {@inheritdoc}
+   * Gets the shipping method label.
+   *
+   * @return mixed
+   *   The shipping method label.
    */
-  public function selectRate(ShipmentInterface $shipment, ShippingRate $rate) {
-    $shipment->setShippingService($rate->getService()->getId());
-    $shipment->setAmount($rate->getAmount());
+  public function getLabel() {
+
   }
 
   /**
-   * {@inheritdoc}
+   * Gets the default package type.
+   *
+   * @return \Drupal\commerce_shipping\Plugin\Commerce\PackageType\PackageTypeInterface
+   *   The default package type.
    */
-  public function calculateRates(ShipmentInterface $shipment) {
-    // Rates Array.
-    $rates = [];
+  public function getDefaultPackageType() {
 
-    if ($shipment->getShippingProfile()->get('address')->isEmpty()) {
-      $rates = [];
-    }
-    else {
-      // @todo Make that class a service.
-      $ups = new Ups($this->configuration);
-        $UpsRates = $ups->getUpsRate($shipment);
-        foreach ($UpsRates as $upsRateObject) {
-          foreach ($upsRateObject as $upsRate) {
-            $cost = $upsRate->TotalCharges->MonetaryValue;
-            $currency = $upsRate->TotalCharges->CurrencyCode;
+  }
 
-            $price = new Price((string) $cost, $currency);
-            $ServiceCode = $upsRate->Service->getCode();
-            $ServiceName = $upsRate->Service->getName();
 
-            $shippingService = new ShippingService(
-              $ServiceName,
-              $ups->translateServiceCodeToString($ServiceCode)
-            );
+  /**
+   * Calculates rates for the given shipment.
+   *
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *   The shipment.
+   *
+   * @return \Drupal\commerce_shipping\ShippingRate[]
+   *   The rates.
+   */
+  public function calculateRates(ShipmentInterface $shipment){
+    // todo: return ShippingRate.
+    $rate_request = new UPSRateRequest($this->configuration, $shipment);
 
-            $rates[] = new ShippingRate(
-              $ServiceCode,
-              $shippingService,
-              $price
-            );
+  }
 
-          }
-        }
-      }
-    return $rates;
+  /**
+   * Selects the given shipping rate for the given shipment.
+   *
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *   The shipment.
+   * @param \Drupal\commerce_shipping\ShippingRate $rate
+   *   The shipping rate.
+   */
+  public function selectRate(ShipmentInterface $shipment, ShippingRate $rate) {
+
   }
 
   /**

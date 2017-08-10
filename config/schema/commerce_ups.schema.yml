@@ -21,9 +21,6 @@ commerce_shipping.commerce_shipping_method.plugin.ups:
       type: mapping
       label: 'UPS Options'
       mapping:
-        packaging:
-          type: label
-          label: 'Packaging Strategy'
         log:
           type: mapping
           label: 'Log the following messages for debugging'
