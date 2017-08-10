@@ -97,10 +97,10 @@ class CommerceUps extends ShippingMethodBase {
       '#required' => TRUE,
     ];
     $form['api_information']['password'] = [
-      '#type' => 'textfield',
+      '#type' => 'password',
       '#title' => t('Password'),
       '#description' => t(''),
-      '#default_value' => $this->configuration['api_information']['password'],
+      '#default_value' => '',
       '#required' => TRUE,
     ];
     $form['api_information']['mode'] = [
