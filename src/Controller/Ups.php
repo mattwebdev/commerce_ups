@@ -3,6 +3,7 @@
 namespace Drupal\commerce_ups\Controller;
 
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
+use Drupal\commerce_store\Entity\StoreInterface;
 use Exception;
 use Ups\Entity\Address;
 use Ups\Entity\Dimensions;
@@ -12,6 +13,7 @@ use Ups\Entity\PackagingType;
 use Ups\Entity\RateInformation;
 use Ups\Entity\ShipFrom;
 use Ups\Entity\Shipment;
+use Ups\Entity\ShipTo;
 use Ups\Entity\UnitOfMeasurement;
 use Ups\Rate;
 use Ups\SimpleAddressValidation;
@@ -28,6 +30,39 @@ class Ups {
   public function __construct($configuration, ShipmentInterface $shipment) {
     $this->configuration = $configuration;
     $this->shipment = $shipment;
+  }
+
+  public function setShiperAddress(Shipment $shipment, StoreInterface $store) {
+
+    // Set Shipper address.
+    $shipperAddress = $shipment->getShipper()->getAddress();
+    $shipperAddress->setAddressLine1($store->getAddress()->getAddressLine1());
+    $shipperAddress->setAddressLine2($store->getAddress()->getAddressLine2());
+    $shipperAddress->setCity($store->getAddress()->getLocality());
+    $shipperAddress->setStateProvinceCode($store->getAddress()
+      ->getAdministrativeArea());
+    $shipperAddress->setPostalCode($store->getAddress()->getPostalCode());
+    $shipperAddress->setCountryCode($store->getAddress()->getCountryCode());
+
+    return $shipperAddress;
+  }
+
+  public function setShipFromAddress(Address $address) {
+    // Set ShipFrom.
+    $ShipFrom = new ShipFrom();
+    $ShipFrom->setAddress($address);
+
+    return $ShipFrom;
+  }
+
+  public function setShipToAddress(Shipment $shipment,$ShippingProfileAddress) {
+    // Set ShipTO.
+    $ShipTo = new ShipTo();
+    $ShipTo = $shipment->getShipTo();
+    $ShipTo->setCompanyName($ShippingProfileAddress->getOrganization());
+    $ShipTo->setAddress($this->buildShipToAddress());
+
+    return $ShipTo;
   }
 
   public function getUpsRate() {
@@ -55,29 +90,18 @@ class Ups {
         ->first();
 
       $rate = new Rate($accessKey, $userId, $password, $useIntegration);
+      $package = $this->buildPackage();
+
       // UPS Shipment object.
       $shipmentObject = new Shipment();
+      $shipperAddress = $this->setShiperAddress($shipmentObject, $store);
 
-      // Set Shipper address.
-      $shipperAddress = $shipmentObject->getShipper()->getAddress();
-      $shipperAddress->setAddressLine1($store->getAddress()->getAddressLine1());
-      $shipperAddress->setAddressLine2($store->getAddress()->getAddressLine2());
-      $shipperAddress->setCity($store->getAddress()->getLocality());
-      $shipperAddress->setStateProvinceCode($store->getAddress()
-        ->getAdministrativeArea());
-      $shipperAddress->setPostalCode($store->getAddress()->getPostalCode());
-      $shipperAddress->setCountryCode($store->getAddress()->getCountryCode());
+      $shipFrom = $this->setShipFromAddress($shipperAddress);
+      $shipTo = $this->setShipToAddress($shipmentObject,$ShippingProfileAddress);
 
-      // Set ShipFrom.
-      $ShipFrom = new ShipFrom();
-      $ShipFrom->setAddress($shipperAddress);
+      $shipmentObject->setShipTo($shipTo);
+      $shipmentObject->setShipFrom($shipFrom);
 
-      // Set ShipTO.
-      $ShipTo = $shipmentObject->getShipTo();
-      $ShipTo->setCompanyName($ShippingProfileAddress->getOrganization());
-      $ShipTo->setAddress($this->buildShipToAddress());
-
-      $package = $this->buildPackage();
       $shipmentObject->addPackage($package);
 
       $rateRequest = $rate->shopRates($shipmentObject);
