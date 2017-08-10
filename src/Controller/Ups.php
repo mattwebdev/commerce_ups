@@ -32,6 +32,12 @@ class Ups {
     $this->shipment = $shipment;
   }
 
+  /**
+   * @param \Ups\Entity\Shipment $shipment
+   * @param \Drupal\commerce_store\Entity\StoreInterface $store
+   *
+   * @return \Ups\Entity\Address
+   */
   public function setShiperAddress(Shipment $shipment, StoreInterface $store) {
 
     // Set Shipper address.
@@ -47,6 +53,11 @@ class Ups {
     return $shipperAddress;
   }
 
+  /**
+   * @param \Ups\Entity\Address $address
+   *
+   * @return \Ups\Entity\ShipFrom
+   */
   public function setShipFromAddress(Address $address) {
     // Set ShipFrom.
     $ShipFrom = new ShipFrom();
@@ -55,6 +66,12 @@ class Ups {
     return $ShipFrom;
   }
 
+  /**
+   * @param \Ups\Entity\Shipment $shipment
+   * @param $ShippingProfileAddress
+   *
+   * @return \Ups\Entity\ShipTo
+   */
   public function setShipToAddress(Shipment $shipment,$ShippingProfileAddress) {
     // Set ShipTO.
     $ShipTo = new ShipTo();
@@ -65,6 +82,9 @@ class Ups {
     return $ShipTo;
   }
 
+  /**
+   * @return \Exception|\Ups\Entity\RateResponse
+   */
   public function getUpsRate() {
     try {
       // UPS Access.
@@ -125,8 +145,6 @@ class Ups {
   }
 
   /**
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
-   * @param \Ups\Entity\Shipment $shipmentObject
    *
    * @return \Ups\Entity\Address
    */
@@ -153,7 +171,6 @@ class Ups {
 
   /**
    * @param \Ups\Entity\Address $address
-   * @param $configuration
    *
    * @return array
    */
@@ -169,7 +186,6 @@ class Ups {
   }
 
   /**
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
    * @return \Ups\Entity\Package
    */
@@ -187,7 +203,6 @@ class Ups {
   }
 
   /**
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
    * @return \Ups\Entity\PackageWeight
    */
@@ -208,7 +223,6 @@ class Ups {
   }
 
   /**
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
    * @return \Ups\Entity\UnitOfMeasurement
    */
@@ -238,7 +252,6 @@ class Ups {
   }
 
   /**
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
    * @return \Ups\Entity\Dimensions
    */
@@ -254,7 +267,6 @@ class Ups {
   }
 
   /**
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
    * @return \Drupal\physical\Length
    */
@@ -264,7 +276,6 @@ class Ups {
   }
 
   /**
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
    * @return \Drupal\physical\Length
    */
@@ -275,7 +286,6 @@ class Ups {
   }
 
   /**
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
    * @return \Drupal\physical\Length
    */
