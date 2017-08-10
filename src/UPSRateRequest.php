@@ -1,8 +1,6 @@
 <?php
 
 namespace Drupal\commerce_ups;
-
-use Braintree\Exception;
 use Drupal\address\AddressInterface;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Ups\Entity\Package as UPSPackage;
@@ -35,7 +33,7 @@ class UPSRateRequest extends UPSRequest {
       $rate->getRate($this->getShipment());
       // todo: pares object and return rate
     }
-    catch (Exception $ex) {
+    catch (\Exception $ex) {
       // todo: handle exceptions.
     }
   }
