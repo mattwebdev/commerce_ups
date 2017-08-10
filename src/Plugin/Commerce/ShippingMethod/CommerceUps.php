@@ -10,7 +10,6 @@ use Drupal\commerce_shipping\ShippingRate;
 use Drupal\commerce_shipping\ShippingService;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\commerce_ups\UPSRateRequest;
-use Drupal\commerce_ups\Controller\Ups;
 
 /**
  * @CommerceShippingMethod(
