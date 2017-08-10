@@ -184,7 +184,7 @@ class CommerceUps extends ShippingMethodBase {
     else {
       // @todo Make that class a service.
       $ups = new Ups($this->configuration, $shipment);
-        $UpsRates = $ups->getUpsRate($shipment);
+        $UpsRates = $ups->getUpsRate();
         foreach ($UpsRates as $upsRateObject) {
           foreach ($upsRateObject as $upsRate) {
             $cost = $upsRate->TotalCharges->MonetaryValue;
