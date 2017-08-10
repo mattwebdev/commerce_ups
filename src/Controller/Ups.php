@@ -4,7 +4,6 @@ namespace Drupal\commerce_ups\Controller;
 
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Exception;
-use Ups\AddressValidation;
 use Ups\Entity\Address;
 use Ups\Entity\Dimensions;
 use Ups\Entity\Package;
@@ -23,6 +22,7 @@ use Ups\SimpleAddressValidation;
 class Ups {
 
   private $configuration;
+
   private $shipment;
 
   public function __construct($configuration, ShipmentInterface $shipment) {
@@ -40,18 +40,21 @@ class Ups {
       //sets setNegotiatedRatesIndicator to 1 or 0 based on configuration
       $this->checkForNegotiatedRates();
 
-      if($this->configuration['testMode'] == 1) {
+      if ($this->configuration['testMode'] == 1) {
         $useIntegration = TRUE;
-      } else {
+      }
+      else {
         $useIntegration = FALSE;
       }
 
       // Commerce Data.
       $store = $this->shipment->getOrder()->getStore();
       /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
-      $ShippingProfileAddress = $this->shipment->getShippingProfile()->get('address')->first();
+      $ShippingProfileAddress = $this->shipment->getShippingProfile()
+        ->get('address')
+        ->first();
 
-      $rate = new Rate($accessKey, $userId, $password,$useIntegration);
+      $rate = new Rate($accessKey, $userId, $password, $useIntegration);
       // UPS Shipment object.
       $shipmentObject = new Shipment();
 
@@ -60,7 +63,8 @@ class Ups {
       $shipperAddress->setAddressLine1($store->getAddress()->getAddressLine1());
       $shipperAddress->setAddressLine2($store->getAddress()->getAddressLine2());
       $shipperAddress->setCity($store->getAddress()->getLocality());
-      $shipperAddress->setStateProvinceCode($store->getAddress()->getAdministrativeArea());
+      $shipperAddress->setStateProvinceCode($store->getAddress()
+        ->getAdministrativeArea());
       $shipperAddress->setPostalCode($store->getAddress()->getPostalCode());
       $shipperAddress->setCountryCode($store->getAddress()->getCountryCode());
 
@@ -77,8 +81,7 @@ class Ups {
       $shipmentObject->addPackage($package);
 
       $rateRequest = $rate->shopRates($shipmentObject);
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
       $rateRequest = $e;
     }
     return $rateRequest;
@@ -87,20 +90,14 @@ class Ups {
   public function checkForNegotiatedRates() {
     $rateInformation = new RateInformation;
 
-    if($this->configuration['nRate'] == 1) {
+    if ($this->configuration['nRate'] == 1) {
       $rateInformation->setNegotiatedRatesIndicator(1);
-    } else {
+    }
+    else {
       $rateInformation->setNegotiatedRatesIndicator(0);
     }
 
     return $rateInformation;
-  }
-
-  /**
-   * stub function for sending shippment to UPS.
-   */
-  public function sendShippment() {
-
   }
 
   /**
@@ -111,7 +108,9 @@ class Ups {
    */
   public function buildShipToAddress() {
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
-    $ShippingProfileAddress = $this->shipment->getShippingProfile()->get('address')->first();
+    $ShippingProfileAddress = $this->shipment->getShippingProfile()
+      ->get('address')
+      ->first();
     $ShipToAddress = new Address();
     $ShipToAddress->setAddressLine1($ShippingProfileAddress->getAddressLine1());
     $ShipToAddress->setAddressLine2($ShippingProfileAddress->getAddressLine2());
@@ -129,6 +128,23 @@ class Ups {
   }
 
   /**
+   * @param \Ups\Entity\Address $address
+   * @param $configuration
+   *
+   * @return array
+   */
+  public function verifySimpleAddress(Address $address) {
+    $validation = [];
+    $av = new SimpleAddressValidation($this->configuration['access_key'], $this->configuration['user_id'], $this->configuration['password']);
+    try {
+      $validation = $av->validate($address);
+    } catch (Exception $e) {
+      var_dump($e);
+    }
+    return $validation;
+  }
+
+  /**
    * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
    * @return \Ups\Entity\Package
@@ -138,8 +154,10 @@ class Ups {
     $package = new Package();
     $package->getPackagingType()->setCode(PackagingType::PT_PACKAGE);
 
-    $package->getPackageWeight()->setWeight($this->getPackageWeight()->getWeight());
-    $package->getPackageWeight()->setUnitOfMeasurement($this->getPackageWeight()->getUnitOfMeasurement());
+    $package->getPackageWeight()->setWeight($this->getPackageWeight()
+      ->getWeight());
+    $package->getPackageWeight()->setUnitOfMeasurement($this->getPackageWeight()
+      ->getUnitOfMeasurement());
     $package->setDimensions($this->setDimensions());
     return $package;
   }
@@ -253,6 +271,13 @@ class Ups {
     return $unit;
   }
 
+  /**
+   * stub function for sending shippment to UPS.
+   */
+  public function sendShippment() {
+
+  }
+
   public function translateServiceCodeToString($serviceCode) {
     switch ($serviceCode) {
       // Domestic.
@@ -289,23 +314,6 @@ class Ups {
         break;
     }
     return $service;
-  }
-
-  /**
-   * @param \Ups\Entity\Address $address
-   * @param $configuration
-   *
-   * @return array
-   */
-  public function verifySimpleAddress(Address $address) {
-    $validation = [];
-    $av = new SimpleAddressValidation($this->configuration['access_key'], $this->configuration['user_id'], $this->configuration['password']);
-    try {
-      $validation = $av->validate($address);
-    } catch (Exception $e) {
-      var_dump($e);
-    }
-    return $validation;
   }
 
 }
