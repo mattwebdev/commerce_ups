@@ -198,7 +198,6 @@ class CommerceUps extends ShippingMethodBase {
   public function calculateRates(ShipmentInterface $shipment){
     // todo: return ShippingRate.
     $rate_request = new UPSRateRequest($this->configuration, $shipment);
-
   }
 
   /**
