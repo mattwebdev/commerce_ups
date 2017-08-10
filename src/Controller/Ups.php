@@ -23,13 +23,14 @@ use Ups\SimpleAddressValidation;
 class Ups {
 
   private $configuration;
+  private $shipment;
 
-  public function __construct($configuration) {
+  public function __construct($configuration, ShipmentInterface $shipment) {
     $this->configuration = $configuration;
-
+    $this->shipment = $shipment;
   }
 
-  public function getUpsRate(ShipmentInterface $shipment) {
+  public function getUpsRate() {
     try {
       // UPS Access.
       $accessKey = $this->configuration['access_key'];
@@ -46,9 +47,9 @@ class Ups {
       }
 
       // Commerce Data.
-      $store = $shipment->getOrder()->getStore();
+      $store = $this->shipment->getOrder()->getStore();
       /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
-      $ShippingProfileAddress = $shipment->getShippingProfile()->get('address')->first();
+      $ShippingProfileAddress = $this->shipment->getShippingProfile()->get('address')->first();
 
       $rate = new Rate($accessKey, $userId, $password,$useIntegration);
       // UPS Shipment object.
@@ -70,9 +71,9 @@ class Ups {
       // Set ShipTO.
       $ShipTo = $shipmentObject->getShipTo();
       $ShipTo->setCompanyName($ShippingProfileAddress->getOrganization());
-      $ShipTo->setAddress($this->buildShipToAddress($shipment));
+      $ShipTo->setAddress($this->buildShipToAddress());
 
-      $package = $this->buildPackage($shipment);
+      $package = $this->buildPackage();
       $shipmentObject->addPackage($package);
 
       $rateRequest = $rate->shopRates($shipmentObject);
@@ -108,9 +109,9 @@ class Ups {
    *
    * @return \Ups\Entity\Address
    */
-  public function buildShipToAddress(ShipmentInterface $shipment) {
+  public function buildShipToAddress() {
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $ShippingProfileAddress */
-    $ShippingProfileAddress = $shipment->getShippingProfile()->get('address')->first();
+    $ShippingProfileAddress = $this->shipment->getShippingProfile()->get('address')->first();
     $ShipToAddress = new Address();
     $ShipToAddress->setAddressLine1($ShippingProfileAddress->getAddressLine1());
     $ShipToAddress->setAddressLine2($ShippingProfileAddress->getAddressLine2());
@@ -127,14 +128,19 @@ class Ups {
     return $ShipToAddress;
   }
 
-  public function buildPackage(ShipmentInterface $shipment) {
+  /**
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *
+   * @return \Ups\Entity\Package
+   */
+  public function buildPackage() {
     // Set Package.
     $package = new Package();
     $package->getPackagingType()->setCode(PackagingType::PT_PACKAGE);
 
-    $package->getPackageWeight()->setWeight($this->getPackageWeight($shipment)->getWeight());
-    $package->getPackageWeight()->setUnitOfMeasurement($this->getPackageWeight($shipment)->getUnitOfMeasurement());
-    $package->setDimensions($this->setDimensions($shipment));
+    $package->getPackageWeight()->setWeight($this->getPackageWeight()->getWeight());
+    $package->getPackageWeight()->setUnitOfMeasurement($this->getPackageWeight()->getUnitOfMeasurement());
+    $package->setDimensions($this->setDimensions());
     return $package;
   }
 
@@ -143,8 +149,8 @@ class Ups {
    *
    * @return \Ups\Entity\PackageWeight
    */
-  public function getPackageWeight(ShipmentInterface $shipment) {
-    $orderItems = $shipment->getOrder()->getItems();
+  public function getPackageWeight() {
+    $orderItems = $this->shipment->getOrder()->getItems();
     $itemWeight = [];
     foreach ($orderItems as $item) {
       // @todo check fedex, seems like this should be easier.
@@ -155,7 +161,7 @@ class Ups {
     }
     $upsWeight = new PackageWeight();
     $upsWeight->setWeight(array_sum($itemWeight));
-    $upsWeight->setUnitOfMeasurement($this->setWeightUnit($shipment));
+    $upsWeight->setUnitOfMeasurement($this->setWeightUnit());
     return $upsWeight;
   }
 
@@ -164,9 +170,9 @@ class Ups {
    *
    * @return \Ups\Entity\UnitOfMeasurement
    */
-  public function setWeightUnit(ShipmentInterface $shipment) {
+  public function setWeightUnit() {
     $unit = new UnitOfMeasurement();
-    $orderItems = $shipment->getOrder()->getItems();
+    $orderItems = $this->shipment->getOrder()->getItems();
     foreach ($orderItems as $item) {
       // We only need one unit because a package must have all the same weight unit so the last one is just as good as any.
       $ItemUnit = $item->getPurchasedEntity()
@@ -194,12 +200,12 @@ class Ups {
    *
    * @return \Ups\Entity\Dimensions
    */
-  public function setDimensions(ShipmentInterface $shipment) {
+  public function setDimensions() {
     // Set Dims.
     $dimensions = new Dimensions();
-    $dimensions->setHeight($this->getPackageHeight($shipment)->getNumber());
-    $dimensions->setWidth($this->getPackageWidth($shipment)->getNumber());
-    $dimensions->setLength($this->getPackageLength($shipment)->getNumber());
+    $dimensions->setHeight($this->getPackageHeight()->getNumber());
+    $dimensions->setWidth($this->getPackageWidth()->getNumber());
+    $dimensions->setLength($this->getPackageLength()->getNumber());
     $dimensions->setUnitOfMeasurement($this->setDimUnit());
 
     return $dimensions;
@@ -210,8 +216,8 @@ class Ups {
    *
    * @return \Drupal\physical\Length
    */
-  public function getPackageHeight(ShipmentInterface $shipment) {
-    $height = $shipment->getPackageType()->getHeight();
+  public function getPackageHeight() {
+    $height = $this->shipment->getPackageType()->getHeight();
     return $height;
   }
 
@@ -220,8 +226,8 @@ class Ups {
    *
    * @return \Drupal\physical\Length
    */
-  public function getPackageWidth(ShipmentInterface $shipment) {
-    $width = $shipment->getPackageType()->getWidth();
+  public function getPackageWidth() {
+    $width = $this->shipment->getPackageType()->getWidth();
     return $width;
 
   }
@@ -231,8 +237,8 @@ class Ups {
    *
    * @return \Drupal\physical\Length
    */
-  public function getPackageLength(ShipmentInterface $shipment) {
-    $length = $shipment->getPackageType()->getLength();
+  public function getPackageLength() {
+    $length = $this->shipment->getPackageType()->getLength();
     return $length;
   }
 
