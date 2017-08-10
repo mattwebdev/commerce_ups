@@ -51,7 +51,7 @@ class Ups {
       $ShippingProfileAddress = $shipment->getShippingProfile()->get('address')->first();
 
       $rate = new Rate($accessKey, $userId, $password,$useIntegration);
-      // UPS Shippment object.
+      // UPS Shipment object.
       $shipmentObject = new Shipment();
 
       // Set Shipper address.
@@ -190,14 +190,16 @@ class Ups {
   }
 
   /**
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
+   * @return \Ups\Entity\Dimensions
    */
   public function setDimensions(ShipmentInterface $shipment) {
     // Set Dims.
     $dimensions = new Dimensions();
-    $dimensions->setHeight($this->getPackageHeight($shipment));
-    $dimensions->setWidth($this->getPackageWidth($shipment));
-    $dimensions->setLength($this->getPackageLength($shipment));
+    $dimensions->setHeight($this->getPackageHeight($shipment)->getNumber());
+    $dimensions->setWidth($this->getPackageWidth($shipment)->getNumber());
+    $dimensions->setLength($this->getPackageLength($shipment)->getNumber());
     $dimensions->setUnitOfMeasurement($this->setDimUnit());
 
     return $dimensions;
@@ -206,47 +208,32 @@ class Ups {
   /**
    * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
-   * @return int
+   * @return \Drupal\physical\Length
    */
   public function getPackageHeight(ShipmentInterface $shipment) {
-    $items = $shipment->getOrder()->getItems();
-    $heights = [];
-    foreach ($items as $item) {
-      $heights[] = floatval($item->getPurchasedEntity()->get('dimensions')->first()->getHeight()->getNumber());
-    }
-    return max($heights);
+    $height = $shipment->getPackageType()->getHeight();
+    return $height;
   }
 
   /**
    * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
-   * @return int
+   * @return \Drupal\physical\Length
    */
   public function getPackageWidth(ShipmentInterface $shipment) {
-    $items = $shipment->getOrder()->getItems();
-    $widths = [];
-    foreach ($items as $item) {
-      $widths[] = floatval($item->getPurchasedEntity()->get('dimensions')->first()->getWidth()->getNumber());
-    }
-
-    return max($widths);
+    $width = $shipment->getPackageType()->getWidth();
+    return $width;
 
   }
 
   /**
    * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
    *
-   * @return int
+   * @return \Drupal\physical\Length
    */
   public function getPackageLength(ShipmentInterface $shipment) {
-    $items = $shipment->getOrder()->getItems();
-    $lengths = [];
-    foreach ($items as $item) {
-      $lengths[] = floatval($item->getPurchasedEntity()->get('dimensions')->first()->getLength()->getNumber());
-    }
-
-    return max($lengths);
-
+    $length = $shipment->getPackageType()->getLength();
+    return $length;
   }
 
   /**
