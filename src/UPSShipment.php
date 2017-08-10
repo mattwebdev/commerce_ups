@@ -7,6 +7,7 @@ use Ups\Entity\Package as UPSPackage;
 use UPS\Entity\Address;
 use UPS\Entity\Shipment as APIShipment;
 use UPS\Entity\Dimensions;
+use Ups\Entity\UnitOfMeasurement;
 
 class UPSShipment extends UPSEntity {
   protected $shipment;
@@ -80,7 +81,7 @@ class UPSShipment extends UPSEntity {
     $dimensions->setWidth($this->shipment->getPackageType()->getWidth()->getNumber());
     $dimensions->setLength($this->shipment->getPackageType()->getLength()->getNumber());
     $unit = $this->getUnitOfMeasure($this->shipment->getPackageType()->getLength()->getUnit());
-    $dimensions->setUnitOfMeasurement($unit);
+    $dimensions->setUnitOfMeasurement($this->setUnitOfMeasurement($unit));
     $ups_package->setDimensions($dimensions);
   }
 
@@ -91,6 +92,12 @@ class UPSShipment extends UPSEntity {
     $ups_package_weight = $ups_package->getPackageWeight();
     $ups_package_weight->setWeight($this->shipment->getPackageType()->getWeight()->getNumber());
     $unit = $this->getUnitOfMeasure($this->shipment->getPackageType()->getWeight()->getUnit());
-    $ups_package_weight->setUnitOfMeasurement($unit);
+    $ups_package_weight->setUnitOfMeasurement($this->setUnitOfMeasurement($unit));
+  }
+
+  public function setUnitOfMeasurement($code) {
+    $upsUnit = new UnitOfMeasurement();
+    $upsUnit->setCode($code);
+    return $upsUnit;
   }
 }
