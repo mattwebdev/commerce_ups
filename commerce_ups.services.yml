@@ -1,4 +1,1 @@
 services:
-  commerce_ups.ups :
-    class: Drupal\commerce_ups\Controller\Ups
-    arguments: []
