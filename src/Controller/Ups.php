@@ -316,4 +316,10 @@ class Ups {
     return $service;
   }
 
+  /**
+   * @return \Drupal\commerce_shipping\Entity\ShipmentInterface
+   */
+  public function getShipment() {
+    return $this->shipment;
+  }
 }
