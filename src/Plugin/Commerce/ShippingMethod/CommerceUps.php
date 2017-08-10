@@ -2,15 +2,13 @@
 
 namespace Drupal\commerce_ups\Plugin\Commerce\ShippingMethod;
 
-use Drupal\commerce_price\Price;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\PackageTypeManagerInterface;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
-use Drupal\commerce_shipping\ShippingService;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\commerce_ups\Controller\Ups;
-use Exception;
+use Drupal\commerce_ups\UPSRateRequest;
+
 
 /**
  * @CommerceShippingMethod(
@@ -35,21 +33,6 @@ use Exception;
  * )
  */
 class CommerceUps extends ShippingMethodBase {
-
-  /**
-   * The package type manager.
-   *
-   * @var \Drupal\commerce_shipping\PackageTypeManagerInterface
-   */
-  protected $packageTypeManager;
-
-  /**
-   * The shipping services.
-   *
-   * @var \Drupal\commerce_shipping\ShippingService[]
-   */
-  protected $services = [];
-
   /**
    * Constructs a new ShippingMethodBase object.
    *
@@ -66,19 +49,6 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, PackageTypeManagerInterface $packageTypeManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $packageTypeManager);
-    $this->packageTypeManager = $packageTypeManager;
-    foreach ($this->pluginDefinition['services'] as $id => $label) {
-      $this->services[$id] = new ShippingService($id, (string) $label);
-    }
-    $this->setConfiguration($configuration);
-  }
-
-  /**
-   *
-   */
-  public function getServices() {
-    // Filter out shipping services disabled by the merchant.
-    return array_intersect_key($this->services, array_flip($this->configuration['services']));
   }
 
   /**
@@ -86,11 +56,15 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-      'access_key' => '',
-      'user_id' => '',
-      'password' => '',
-      'testMode' => '',
-      'nRate' => '',
+      'api_information' => [
+        'access_key' => '',
+        'user_id' => '',
+        'password' => '',
+        'mode' => 'test',
+      ],
+      'options' => [
+        'log' => [],
+      ],
     ] + parent::defaultConfiguration();
   }
 
@@ -100,37 +74,59 @@ class CommerceUps extends ShippingMethodBase {
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
 
-    $form['access_key'] = [
+    $form['api_information'] = [
+      '#type' => 'details',
+      '#title' => $this->t('API information'),
+      '#description' => $this->isConfigured() ? $this->t('Update your UPS API information.') : $this->t('Fill in your UPS API information.'),
+      '#weight' => $this->isConfigured() ? 10 : -10,
+      '#open' => !$this->isConfigured(),
+    ];
+
+    $form['api_information']['access_key'] = [
       '#type' => 'textfield',
       '#title' => t('Access Key'),
       '#description' => t(''),
-      '#default_value' => $this->configuration['access_key'],
+      '#default_value' => $this->configuration['api_information']['access_key'],
       '#required' => TRUE,
     ];
-    $form['user_id'] = [
+    $form['api_information']['user_id'] = [
       '#type' => 'textfield',
       '#title' => t('User ID'),
       '#description' => t(''),
-      '#default_value' => $this->configuration['user_id'],
+      '#default_value' => $this->configuration['api_information']['user_id'],
       '#required' => TRUE,
     ];
-    $form['password'] = [
-      '#type' => 'textfield',
+    $form['api_information']['password'] = [
+      '#type' => 'password',
       '#title' => t('Password'),
       '#description' => t(''),
-      '#default_value' => $this->configuration['password'],
+      '#default_value' => '',
       '#required' => TRUE,
     ];
-    $form['testMode'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Test Mode'),
-      '#default_value' => $this->configuration['testMode'],
+    $form['api_information']['mode'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Mode'),
+      '#description' => $this->t('Choose whether to use the test or live mode.'),
+      '#options' => [
+        'test' => $this->t('Test'),
+        'live' => $this->t('Live'),
+      ],
+      '#default_value' => $this->configuration['api_information']['mode'],
     ];
 
-    $form['nRate'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Use Negotiated Rates'),
-      '#default_value' => $this->configuration['nRate'],
+    $form['options'] = [
+      '#type' => 'details',
+      '#title' => $this->t('UPS Options'),
+      '#description' => $this->t('Additional options for UPS'),
+    ];
+    $form['options']['log'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Log the following messages for debugging'),
+      '#options' => [
+        'request' => $this->t('API request messages'),
+        'response' => $this->t('API response messages'),
+      ],
+      '#default_value' => $this->configuration['options']['log'],
     ];
 
     return $form;
@@ -153,62 +149,82 @@ class CommerceUps extends ShippingMethodBase {
 
       $values = $form_state->getValue($form['#parents']);
 
-      $this->configuration['access_key'] = $values['access_key'];
-      $this->configuration['user_id'] = $values['user_id'];
-      $this->configuration['password'] = $values['password'];
-      $this->configuration['testMode'] = $values['testMode'];
-      $this->configuration['nRate'] = $values['nRate'];
+      $this->configuration['api_information']['access_key'] = $values['api_information']['access_key'];
+      $this->configuration['api_information']['user_id'] = $values['api_information']['user_id'];
+      if (!empty($values['api_information']['password'])) {
+        $this->configuration['api_information']['password'] = $values['api_information']['password'];
+      }
+      $this->configuration['api_information']['mode'] = $values['api_information']['mode'];
+
+      $this->configuration['options']['packaging'] = $values['options']['packaging'];
+      $this->configuration['options']['log'] = $values['options']['log'];
 
     }
     parent::submitConfigurationForm($form, $form_state);
   }
 
+
   /**
-   * {@inheritdoc}
+   * Gets the shipping method label.
+   *
+   * @return mixed
+   *   The shipping method label.
    */
-  public function selectRate(ShipmentInterface $shipment, ShippingRate $rate) {
-    $shipment->setShippingService($rate->getService()->getId());
-    $shipment->setAmount($rate->getAmount());
+  public function getLabel() {
+
   }
 
   /**
-   * {@inheritdoc}
+   * Gets the default package type.
+   *
+   * @return \Drupal\commerce_shipping\Plugin\Commerce\PackageType\PackageTypeInterface
+   *   The default package type.
    */
-  public function calculateRates(ShipmentInterface $shipment) {
-    // Rates Array.
-    $rates = [];
+  public function getDefaultPackageType() {
 
-    if ($shipment->getShippingProfile()->get('address')->isEmpty()) {
-      $rates = [];
-    }
-    else {
-      // @todo Make that class a service.
-      $ups = new Ups($this->configuration);
-        $UpsRates = $ups->getUpsRate($shipment);
-        foreach ($UpsRates as $upsRateObject) {
-          foreach ($upsRateObject as $upsRate) {
-            $cost = $upsRate->TotalCharges->MonetaryValue;
-            $currency = $upsRate->TotalCharges->CurrencyCode;
+  }
 
-            $price = new Price((string) $cost, $currency);
-            $ServiceCode = $upsRate->Service->getCode();
-            $ServiceName = $upsRate->Service->getName();
 
-            $shippingService = new ShippingService(
-              $ServiceName,
-              $ups->translateServiceCodeToString($ServiceCode)
-            );
+  /**
+   * Calculates rates for the given shipment.
+   *
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *   The shipment.
+   *
+   * @return \Drupal\commerce_shipping\ShippingRate[]
+   *   The rates.
+   */
+  public function calculateRates(ShipmentInterface $shipment){
+    // todo: return ShippingRate.
+    $rate_request = new UPSRateRequest($this->configuration, $shipment);
+  }
 
-            $rates[] = new ShippingRate(
-              $ServiceCode,
-              $shippingService,
-              $price
-            );
+  /**
+   * Selects the given shipping rate for the given shipment.
+   *
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *   The shipment.
+   * @param \Drupal\commerce_shipping\ShippingRate $rate
+   *   The shipping rate.
+   */
+  public function selectRate(ShipmentInterface $shipment, ShippingRate $rate) {
 
-          }
-        }
-      }
-    return $rates;
+  }
+
+  /**
+   * Determine if we have the minimum information to connect to UPS.
+   *
+   * @return bool
+   *   TRUE if there is enough information to connect, FALSE otherwise.
+   */
+  protected function isConfigured() {
+    $api_information = $this->configuration['api_information'];
+
+    return (
+      !empty($api_information['access_key'])
+      && !empty($api_information['user_id'])
+      && !empty($api_information['password'])
+    );
   }
 }
 
