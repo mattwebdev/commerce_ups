@@ -63,7 +63,6 @@ class CommerceUps extends ShippingMethodBase {
         'mode' => 'test',
       ],
       'options' => [
-        'packaging' => static::PACKAGE_ALL_IN_ONE,
         'log' => [],
       ],
     ] + parent::defaultConfiguration();
