@@ -33,6 +33,7 @@ class UPSRateRequest extends UPSRequest {
     );
     try {
       $rate->getRate($this->getShipment());
+      // todo: pares object and return rate
     }
     catch (Exception $ex) {
       // todo: handle exceptions.
