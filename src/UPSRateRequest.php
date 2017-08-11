@@ -4,17 +4,33 @@ namespace Drupal\commerce_ups;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Ups\Rate;
 
-
+/**
+ * Class UPSRateRequest
+ * @package Drupal\commerce_ups
+ */
 class UPSRateRequest extends UPSRequest {
+  /** @var \Drupal\commerce_shipping\Entity\ShipmentInterface  */
   protected $commerce_shipment;
+
+  /** @var array */
   protected $configuration;
+
+  /** @var UPSShipment */
   protected $ups_shipment;
 
+  /**
+   * UPSRateRequest constructor.
+   * @param array $configuration
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $commerce_shipment
+   */
   public function __construct(array $configuration, ShipmentInterface $commerce_shipment) {
     parent::__construct($configuration);
     $this->commerce_shipment = $commerce_shipment;
   }
 
+  /**
+   * Fetch rates from the UPS API.
+   */
   public function getRates() {
     $auth = $this->getAuth();
 
