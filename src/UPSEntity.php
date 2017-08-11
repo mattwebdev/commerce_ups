@@ -28,5 +28,7 @@ class UPSEntity {
       case 'CM':
         return UnitOfMeasurement::UOM_CM;
     }
+    return $unit;
   }
+
 }
