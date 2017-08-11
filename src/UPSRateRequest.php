@@ -1,7 +1,11 @@
 <?php
 
 namespace Drupal\commerce_ups;
+
+use Drupal\commerce_price\Price;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
+use Drupal\commerce_shipping\ShippingRate;
+use Drupal\commerce_shipping\ShippingService;
 use Ups\Rate;
 
 /**
@@ -32,21 +36,43 @@ class UPSRateRequest extends UPSRequest {
    * Fetch rates from the UPS API.
    */
   public function getRates() {
+    $rates = [];
     $auth = $this->getAuth();
 
-    $rate = new Rate(
+    $request = new Rate(
       $auth['access_key'],
       $auth['user_id'],
       $auth['password']
     );
+
     try {
-      $shipment = new UPSShipment($this->commerce_shipment);
-      //$rate->getRate($shipment);
-      $upsRate = $rate->shopRates($shipment);
+      $ups_shipment = new UPSShipment($this->commerce_shipment);
+      $shipment = $ups_shipment->getShipment();
+      $ups_rates = $request->shopRates($shipment);
     }
     catch (\Exception $ex) {
-      $upsRate = $ex;
+      // todo: handle exceptions by logging.
+      $ups_rates = [];
     }
-    return $upsRate;
+
+    if (!empty($ups_rates->RatedShipment)) {
+      foreach ($ups_rates->RatedShipment as $ups_rate) {
+        $cost = $ups_rate->TotalCharges->MonetaryValue;
+        $currency = $ups_rate->TotalCharges->CurrencyCode;
+        $price = new Price((string) $cost, $currency);
+        $service_code = $ups_rate->Service->getCode();
+        $service_name = $ups_rate->Service->getName();
+        $shipping_service = new ShippingService(
+          $service_name,
+          $service_name
+        );
+        $rates[] = new ShippingRate(
+          $service_code,
+          $shipping_service,
+          $price
+        );
+      }
+    }
+    return $rates;
   }
 }

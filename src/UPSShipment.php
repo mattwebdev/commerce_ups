@@ -6,6 +6,7 @@ use Drupal\address\AddressInterface;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Ups\Entity\Package as UPSPackage;
 use Ups\Entity\Address;
+use Ups\Entity\ShipFrom;
 use Ups\Entity\Shipment as APIShipment;
 use Ups\Entity\Dimensions;
 use Ups\Entity\UnitOfMeasurement;
@@ -35,15 +36,13 @@ class UPSShipment extends UPSEntity {
    */
   public function setShipTo(APIShipment $api_shipment) {
     // todo: set all address fields
-
-    /** @var $address AddressInterface */
-    $address = $this->shipment->getShippingProfile()->get('address');
+    $address = $this->shipment->getShippingProfile()->address;
     $to_address = new Address();
-    $to_address->setAddressLine1($address->getAddressLine1());
-    $to_address->setAddressLine2($address->getAddressLine2());
-    $to_address->setCity($address->getDependentLocality());
-    $to_address->setStateProvinceCode($address->getAdministrativeArea());
-    $to_address->setPostalCode($address->getPostalCode());
+    $to_address->setAddressLine1($address->address_line1);
+    $to_address->setAddressLine2($address->address_line2);
+    $to_address->setCity($address->locality);
+    $to_address->setStateProvinceCode($address->administrative_area);
+    $to_address->setPostalCode($address->postal_code);
     $api_shipment->getShipTo()->setAddress($to_address);
   }
 
@@ -60,7 +59,9 @@ class UPSShipment extends UPSEntity {
     $from_address->setCity($address->getDependentLocality());
     $from_address->setStateProvinceCode($address->getAdministrativeArea());
     $from_address->setPostalCode($address->getPostalCode());
-    $api_shipment->getShipFrom()->setAddress($from_address);
+    $ship_from = new ShipFrom();
+    $ship_from->setAddress($from_address);
+    $api_shipment->setShipFrom($ship_from);
   }
 
   /**
@@ -94,11 +95,5 @@ class UPSShipment extends UPSEntity {
     $ups_package_weight->setWeight($this->shipment->getPackageType()->getWeight()->getNumber());
     $unit = $this->getUnitOfMeasure($this->shipment->getPackageType()->getWeight()->getUnit());
     $ups_package_weight->setUnitOfMeasurement($this->setUnitOfMeasurement($unit));
-  }
-
-  public function setUnitOfMeasurement($code) {
-    $upsUnit = new UnitOfMeasurement();
-    $upsUnit->setCode($code);
-    return $upsUnit;
   }
 }

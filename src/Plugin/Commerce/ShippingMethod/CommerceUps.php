@@ -175,32 +175,7 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function calculateRates(ShipmentInterface $shipment){
     $rate_request = new UPSRateRequest($this->configuration, $shipment);
-    $rates = [];
-    if ($shipment->getShippingProfile()->get('address')->isEmpty()) {
-      $rates = [];
-    }
-    else {
-      // @todo Make that class a service.
-      foreach ($rate_request as $upsRateObject) {
-        foreach ($upsRateObject as $upsRate) {
-          $cost = $upsRate->TotalCharges->MonetaryValue;
-          $currency = $upsRate->TotalCharges->CurrencyCode;
-          $price = new Price((string) $cost, $currency);
-          $serviceCode = $upsRate->Service->getCode();
-          $serviceName = $upsRate->Service->getName();
-          $shippingService = new ShippingService(
-            $serviceName,
-            $serviceCode
-          );
-          $rates[] = new ShippingRate(
-            $serviceCode,
-            $shippingService,
-            $price
-          );
-        }
-      }
-    }
-    return $rates;
+    return $rate_request->getRates();
   }
 
   /**
