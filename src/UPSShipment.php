@@ -2,14 +2,12 @@
 
 namespace Drupal\commerce_ups;
 
-use Drupal\address\AddressInterface;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Ups\Entity\Package as UPSPackage;
 use Ups\Entity\Address;
 use Ups\Entity\ShipFrom;
 use Ups\Entity\Shipment as APIShipment;
 use Ups\Entity\Dimensions;
-use Ups\Entity\UnitOfMeasurement;
 
 class UPSShipment extends UPSEntity {
   protected $shipment;
