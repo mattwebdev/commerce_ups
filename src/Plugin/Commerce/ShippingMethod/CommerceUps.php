@@ -103,7 +103,6 @@ class CommerceUps extends ShippingMethodBase {
       '#title' => t('Password'),
       '#description' => t(''),
       '#default_value' => '',
-      '#required' => TRUE,
     ];
     $form['api_information']['mode'] = [
       '#type' => 'select',
