@@ -26,11 +26,11 @@ class UPSRateRequest extends UPSRequest {
     try {
       $shipment = new UPSShipment($this->commerce_shipment);
       //$rate->getRate($shipment);
-      $rate->shopRates($shipment);
-      // todo: pares object and return rate
+      $upsRate = $rate->shopRates($shipment);
     }
     catch (\Exception $ex) {
-      // todo: handle exceptions.
+      $upsRate = $ex;
     }
+    return $upsRate;
   }
 }

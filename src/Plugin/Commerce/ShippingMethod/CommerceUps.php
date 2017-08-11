@@ -2,10 +2,12 @@
 
 namespace Drupal\commerce_ups\Plugin\Commerce\ShippingMethod;
 
+use Drupal\commerce_price\Price;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\PackageTypeManagerInterface;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
+use Drupal\commerce_shipping\ShippingService;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\commerce_ups\UPSRateRequest;
 
@@ -163,6 +165,28 @@ class CommerceUps extends ShippingMethodBase {
     parent::submitConfigurationForm($form, $form_state);
   }
 
+
+  /**
+   * Gets the shipping method label.
+   *
+   * @return mixed
+   *   The shipping method label.
+   */
+  public function getLabel() {
+
+  }
+
+  /**
+   * Gets the default package type.
+   *
+   * @return \Drupal\commerce_shipping\Plugin\Commerce\PackageType\PackageTypeInterface
+   *   The default package type.
+   */
+  public function getDefaultPackageType() {
+
+  }
+
+
   /**
    * Calculates rates for the given shipment.
    *
@@ -173,8 +197,45 @@ class CommerceUps extends ShippingMethodBase {
    *   The rates.
    */
   public function calculateRates(ShipmentInterface $shipment){
-    // todo: return ShippingRate.
     $rate_request = new UPSRateRequest($this->configuration, $shipment);
+    $rates = [];
+    if ($shipment->getShippingProfile()->get('address')->isEmpty()) {
+      $rates = [];
+    }
+    else {
+      // @todo Make that class a service.
+      foreach ($rate_request as $upsRateObject) {
+        foreach ($upsRateObject as $upsRate) {
+          $cost = $upsRate->TotalCharges->MonetaryValue;
+          $currency = $upsRate->TotalCharges->CurrencyCode;
+          $price = new Price((string) $cost, $currency);
+          $serviceCode = $upsRate->Service->getCode();
+          $serviceName = $upsRate->Service->getName();
+          $shippingService = new ShippingService(
+            $serviceName,
+            $serviceCode
+          );
+          $rates[] = new ShippingRate(
+            $serviceCode,
+            $shippingService,
+            $price
+          );
+        }
+      }
+    }
+    return $rates;
+  }
+
+  /**
+   * Selects the given shipping rate for the given shipment.
+   *
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *   The shipment.
+   * @param \Drupal\commerce_shipping\ShippingRate $rate
+   *   The shipping rate.
+   */
+  public function selectRate(ShipmentInterface $shipment, ShippingRate $rate) {
+
   }
 
   /**
