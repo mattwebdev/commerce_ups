@@ -44,7 +44,8 @@ class UPSRateRequest extends UPSRequest {
     $request = new Rate(
       $auth['access_key'],
       $auth['user_id'],
-      $auth['password']
+      $auth['password'],
+      $this->useIntegrationMode()
     );
 
     try {
@@ -65,11 +66,19 @@ class UPSRateRequest extends UPSRequest {
 
     if (!empty($ups_rates->RatedShipment)) {
       foreach ($ups_rates->RatedShipment as $ups_rate) {
+        $service_code = $ups_rate->Service->getCode();
+
+        // Only add the rate if this service is enabled.
+        if (!in_array($service_code, $this->configuration['services'])) {
+          continue;
+        }
+
         $cost = $ups_rate->TotalCharges->MonetaryValue;
         $currency = $ups_rate->TotalCharges->CurrencyCode;
         $price = new Price((string) $cost, $currency);
-        $service_code = $ups_rate->Service->getCode();
         $service_name = $ups_rate->Service->getName();
+
+
         $shipping_service = new ShippingService(
           $service_name,
           $service_name
