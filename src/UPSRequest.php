@@ -10,6 +10,11 @@ namespace Drupal\commerce_ups;
 class UPSRequest implements UPSRequestInterface {
   protected $configuration;
 
+  /**
+   * UPSRequest constructor.
+   *
+   * @param $configuration
+   */
   public function __construct($configuration) {
     $this->configuration = $configuration;
   }
