@@ -51,10 +51,15 @@ class UPSRateRequest extends UPSRequest {
     try {
       $ups_shipment = new UPSShipment($this->commerce_shipment);
       $shipment = $ups_shipment->getShipment();
-      // Set rate information.
-      $rate_information = new RateInformation;
-      $rate_information->setNegotiatedRatesIndicator($this->getRateType());
-      $shipment->setRateInformation($rate_information);
+
+      // Enable negotiated rates, if enabled.
+      if ($this->getRateType()) {
+        $rate_information = new RateInformation;
+        $rate_information->setNegotiatedRatesIndicator(TRUE);
+        $rate_information->setRateChartIndicator(FALSE);
+        $shipment->setRateInformation($rate_information);
+      }
+
 
       // Shop Rates
       $ups_rates = $request->shopRates($shipment);
