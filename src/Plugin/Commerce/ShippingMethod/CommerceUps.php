@@ -57,17 +57,17 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-      'api_information' => [
-        'access_key' => '',
-        'user_id' => '',
-        'password' => '',
-        'mode' => 'test',
-        'nRate' => 0,
-      ],
-      'options' => [
-        'log' => [],
-      ],
-    ] + parent::defaultConfiguration();
+        'api_information' => [
+          'access_key' => '',
+          'user_id' => '',
+          'password' => '',
+          'mode' => 'test',
+          'rate_setting' => 0,
+        ],
+        'options' => [
+          'log' => [],
+        ],
+      ] + parent::defaultConfiguration();
   }
 
   /**
@@ -116,7 +116,7 @@ class CommerceUps extends ShippingMethodBase {
       '#default_value' => $this->configuration['api_information']['mode'],
     ];
 
-    $form['api_information']['nRate'] = [
+    $form['api_information']['rate_setting'] = [
       '#type' => 'select',
       '#title' => $this->t('Rate Type'),
       '#description' => $this->t('Choose between negotiated and standard rates.'),
@@ -124,7 +124,7 @@ class CommerceUps extends ShippingMethodBase {
         0 => $this->t('Standard Rates'),
         1 => $this->t('Negotiated Rates'),
       ],
-      '#default_value' => $this->configuration['api_information']['nRate'],
+      '#default_value' => $this->configuration['api_information']['rate_setting'],
     ];
 
     $form['options'] = [
@@ -168,8 +168,7 @@ class CommerceUps extends ShippingMethodBase {
         $this->configuration['api_information']['password'] = $values['api_information']['password'];
       }
       $this->configuration['api_information']['mode'] = $values['api_information']['mode'];
-      $this->configuration['api_information']['nRate'] = $values['api_information']['nRate'];
-
+      $this->configuration['api_information']['rate_settings'] = $values['api_information']['rate_setting'];
 
       $this->configuration['options']['packaging'] = $values['options']['packaging'];
       $this->configuration['options']['log'] = $values['options']['log'];

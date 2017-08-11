@@ -41,11 +41,11 @@ class UPSRequest implements UPSRequestInterface {
    * @return string
    *   The mode (test or live).
    */
-  public function getMode(array $configuration) {
+  public function getMode() {
     $mode = 'test';
 
-    if (!empty($configuration['api_information']['mode'])) {
-      $mode = $configuration['api_information']['mode'];
+    if (!empty($this->configuration['api_information']['mode'])) {
+      $mode = $this->configuration['api_information']['mode'];
     }
 
     return $mode;
@@ -57,6 +57,6 @@ class UPSRequest implements UPSRequestInterface {
    * @return mixed
    */
   public function getRateSetting() {
-    return $this->configuration['api_information']['nRate'];
+    return $this->configuration['api_information']['rate_setting'];
   }
 }
