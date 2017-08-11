@@ -187,24 +187,16 @@ class CommerceUps extends ShippingMethodBase {
   }
 
 
-  /**
-   * Calculates rates for the given shipment.
-   *
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
-   *   The shipment.
-   *
-   * @return \Drupal\commerce_shipping\ShippingRate[]
-   *   The rates.
-   */
   public function calculateRates(ShipmentInterface $shipment){
     $rate_request = new UPSRateRequest($this->configuration, $shipment);
+    $ShoppedRates = $rate_request->getRates();
     $rates = [];
     if ($shipment->getShippingProfile()->get('address')->isEmpty()) {
       $rates = [];
     }
     else {
       // @todo Make that class a service.
-      foreach ($rate_request as $upsRateObject) {
+      foreach ($ShoppedRates as $upsRateObject) {
         foreach ($upsRateObject as $upsRate) {
           $cost = $upsRate->TotalCharges->MonetaryValue;
           $currency = $upsRate->TotalCharges->CurrencyCode;
