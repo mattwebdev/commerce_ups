@@ -7,6 +7,8 @@ use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\ShippingRate;
 use Drupal\commerce_shipping\ShippingService;
 use Ups\Rate;
+use Ups\Entity\RateInformation;
+
 
 /**
  * Class UPSRateRequest
@@ -48,6 +50,10 @@ class UPSRateRequest extends UPSRequest {
     try {
       $ups_shipment = new UPSShipment($this->commerce_shipment);
       $shipment = $ups_shipment->getShipment();
+      // Set rate information.
+      $rateInformation = new RateInformation;
+      $rateInformation->setNegotiatedRatesIndicator($this->getRateSetting());
+      // Shop Rates
       $ups_rates = $request->shopRates($shipment);
     }
     catch (\Exception $ex) {

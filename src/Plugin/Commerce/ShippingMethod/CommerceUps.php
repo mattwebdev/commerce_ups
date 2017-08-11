@@ -62,6 +62,7 @@ class CommerceUps extends ShippingMethodBase {
         'user_id' => '',
         'password' => '',
         'mode' => 'test',
+        'nRate' => 0,
       ],
       'options' => [
         'log' => [],
@@ -113,6 +114,17 @@ class CommerceUps extends ShippingMethodBase {
         'live' => $this->t('Live'),
       ],
       '#default_value' => $this->configuration['api_information']['mode'],
+    ];
+
+    $form['api_information']['nRate'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Rate Type'),
+      '#description' => $this->t('Choose between negotiated and standard rates.'),
+      '#options' => [
+        0 => $this->t('Standard Rates'),
+        1 => $this->t('Negotiated Rates'),
+      ],
+      '#default_value' => $this->configuration['api_information']['nRate'],
     ];
 
     $form['options'] = [
