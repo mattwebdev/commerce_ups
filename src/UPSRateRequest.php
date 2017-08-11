@@ -78,7 +78,6 @@ class UPSRateRequest extends UPSRequest {
         $price = new Price((string) $cost, $currency);
         $service_name = $ups_rate->Service->getName();
 
-
         $shipping_service = new ShippingService(
           $service_name,
           $service_name
