@@ -163,28 +163,6 @@ class CommerceUps extends ShippingMethodBase {
     parent::submitConfigurationForm($form, $form_state);
   }
 
-
-  /**
-   * Gets the shipping method label.
-   *
-   * @return mixed
-   *   The shipping method label.
-   */
-  public function getLabel() {
-
-  }
-
-  /**
-   * Gets the default package type.
-   *
-   * @return \Drupal\commerce_shipping\Plugin\Commerce\PackageType\PackageTypeInterface
-   *   The default package type.
-   */
-  public function getDefaultPackageType() {
-
-  }
-
-
   /**
    * Calculates rates for the given shipment.
    *
@@ -197,18 +175,6 @@ class CommerceUps extends ShippingMethodBase {
   public function calculateRates(ShipmentInterface $shipment){
     // todo: return ShippingRate.
     $rate_request = new UPSRateRequest($this->configuration, $shipment);
-  }
-
-  /**
-   * Selects the given shipping rate for the given shipment.
-   *
-   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
-   *   The shipment.
-   * @param \Drupal\commerce_shipping\ShippingRate $rate
-   *   The shipping rate.
-   */
-  public function selectRate(ShipmentInterface $shipment, ShippingRate $rate) {
-
   }
 
   /**
