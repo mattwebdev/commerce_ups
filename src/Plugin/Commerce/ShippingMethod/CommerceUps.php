@@ -165,28 +165,6 @@ class CommerceUps extends ShippingMethodBase {
     parent::submitConfigurationForm($form, $form_state);
   }
 
-
-  /**
-   * Gets the shipping method label.
-   *
-   * @return mixed
-   *   The shipping method label.
-   */
-  public function getLabel() {
-
-  }
-
-  /**
-   * Gets the default package type.
-   *
-   * @return \Drupal\commerce_shipping\Plugin\Commerce\PackageType\PackageTypeInterface
-   *   The default package type.
-   */
-  public function getDefaultPackageType() {
-
-  }
-
-
   /**
    * Calculates rates for the given shipment.
    *
