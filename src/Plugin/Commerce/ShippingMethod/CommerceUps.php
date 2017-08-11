@@ -55,17 +55,17 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-        'api_information' => [
-          'access_key' => '',
-          'user_id' => '',
-          'password' => '',
-          'mode' => 'test',
-          'rate_setting' => 0,
-        ],
-        'options' => [
-          'log' => [],
-        ],
-      ] + parent::defaultConfiguration();
+      'api_information' => [
+        'access_key' => '',
+        'user_id' => '',
+        'password' => '',
+        'mode' => 'test',
+        'rate_setting' => 0,
+      ],
+      'options' => [
+        'log' => [],
+      ],
+    ] + parent::defaultConfiguration();
   }
 
   /**
