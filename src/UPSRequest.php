@@ -21,7 +21,6 @@ class UPSRequest implements UPSRequestInterface {
   /**
    * Returns authentication array for a request.
    *
-   * @param $configuration
    * @return array
    */
   protected function getAuth() {
