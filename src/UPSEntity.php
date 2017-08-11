@@ -30,13 +30,13 @@ class UPSEntity {
   public function getUnitOfMeasure($unit) {
     // todo: map all required units.
     switch ($unit) {
-      case 'LBS':
+      case 'lb':
         return UnitOfMeasurement::PROD_POUNDS;
-      case 'KGS':
+      case 'kg':
         return UnitOfMeasurement::PROD_KILOGRAMS;
-      case 'IN':
+      case 'in':
         return UnitOfMeasurement::UOM_IN;
-      case 'CM':
+      case 'cm':
         return UnitOfMeasurement::UOM_CM;
     }
     return $unit;
