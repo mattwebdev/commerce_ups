@@ -14,10 +14,6 @@ class UPSRequest implements UPSRequestInterface {
     $this->configuration = $configuration;
   }
 
-  public function __call($name, $arguments) {
-    // TODO: Implement __call() method.
-  }
-
   /**
    * Returns authentication array for a request.
    *
