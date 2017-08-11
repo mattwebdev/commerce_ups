@@ -57,6 +57,6 @@ class UPSRequest implements UPSRequestInterface {
    * @return mixed
    */
   public function getRateSetting() {
-    return $this->configuration['api_information']['rate_setting'];
+    return intval($this->configuration['api_information']['rate_setting']);
   }
 }

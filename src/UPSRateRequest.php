@@ -51,9 +51,9 @@ class UPSRateRequest extends UPSRequest {
       $ups_shipment = new UPSShipment($this->commerce_shipment);
       $shipment = $ups_shipment->getShipment();
       // Set rate information.
-      //$rate_information = new RateInformation;
-      //$rate_information->setNegotiatedRatesIndicator($this->getRateSetting());
-      //$shipment->setRateInformation($rate_information);
+      $rate_information = new RateInformation;
+      $rate_information->setNegotiatedRatesIndicator($this->getRateSetting());
+      $shipment->setRateInformation($rate_information);
 
       // Shop Rates
       $ups_rates = $request->shopRates($shipment);
