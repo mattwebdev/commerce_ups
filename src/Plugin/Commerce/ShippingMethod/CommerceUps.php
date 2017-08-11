@@ -168,6 +168,8 @@ class CommerceUps extends ShippingMethodBase {
         $this->configuration['api_information']['password'] = $values['api_information']['password'];
       }
       $this->configuration['api_information']['mode'] = $values['api_information']['mode'];
+      $this->configuration['api_information']['nRate'] = $values['api_information']['nRate'];
+
 
       $this->configuration['options']['packaging'] = $values['options']['packaging'];
       $this->configuration['options']['log'] = $values['options']['log'];
