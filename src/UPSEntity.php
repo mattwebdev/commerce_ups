@@ -12,6 +12,17 @@ class UPSEntity {
   }
 
   /**
+   * @param $code
+   *
+   * @return \Ups\Entity\UnitOfMeasurement
+   */
+  public function setUnitOfMeasurement($code) {
+    $upsUnit = new UnitOfMeasurement();
+    $upsUnit->setCode($code);
+    return $upsUnit;
+  }
+
+  /**
    * Convert commerce UOM to UPS API UOM.
    * @param $unit
    * @return string
