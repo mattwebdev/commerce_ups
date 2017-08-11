@@ -33,19 +33,20 @@ class UPSRequest implements UPSRequestInterface {
   }
 
   /**
-   * Gets the mode to use for API calls.
+   * Determine if integration mode (test or live) should be used.
    *
-   * @return string
-   *   The mode (test or live).
+   * @return boolean
+   *   Integration mode (ie: test) is the default.
    */
-  public function getMode() {
-    $mode = 'test';
-
-    if (!empty($this->configuration['api_information']['mode'])) {
-      $mode = $this->configuration['api_information']['mode'];
+  public function useIntegrationMode() {
+    // If live mode is enabled, do not use integration mode.
+    if (!empty($this->configuration['api_information']['mode'])
+      && $this->configuration['api_information']['mode'] == 'live') {
+      return FALSE;
     }
 
-    return $mode;
+    // Use integration mode by default.
+    return TRUE;
   }
 
   /**

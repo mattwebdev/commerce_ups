@@ -44,7 +44,8 @@ class UPSRateRequest extends UPSRequest {
     $request = new Rate(
       $auth['access_key'],
       $auth['user_id'],
-      $auth['password']
+      $auth['password'],
+      $this->useIntegrationMode()
     );
 
     try {
