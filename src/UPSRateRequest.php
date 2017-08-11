@@ -53,7 +53,7 @@ class UPSRateRequest extends UPSRequest {
       $shipment = $ups_shipment->getShipment();
       // Set rate information.
       $rate_information = new RateInformation;
-      $rate_information->setNegotiatedRatesIndicator($this->getRateSetting());
+      $rate_information->setNegotiatedRatesIndicator($this->getRateType());
       $shipment->setRateInformation($rate_information);
 
       // Shop Rates
@@ -91,5 +91,14 @@ class UPSRateRequest extends UPSRequest {
       }
     }
     return $rates;
+  }
+
+  /**
+   * Gets the rate type: whether we will use negotiated rates or standard rates.
+   *
+   * @return mixed
+   */
+  public function getRateType() {
+    return intval($this->configuration['rate_options']['rate_type']);
   }
 }

@@ -17,7 +17,11 @@ commerce_shipping.commerce_shipping_method.plugin.ups:
         mode:
           type: boolean
           label: 'Choose whether to use the test or live mode'
-        rate_setting:
+    rate_options:
+      type: mapping
+      label: 'UPS Rating Options'
+      mapping:
+        rate_type:
           type: boolean
           label: 'Choose whether to use negotiated or standard rates'
     options:

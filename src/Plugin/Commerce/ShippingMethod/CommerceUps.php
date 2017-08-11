@@ -60,8 +60,10 @@ class CommerceUps extends ShippingMethodBase {
         'user_id' => '',
         'password' => '',
         'mode' => 'test',
-        'rate_setting' => 0,
       ],
+      'rate_options' => [
+        'rate_type' => 0,
+      ] ,
       'options' => [
         'log' => [],
       ],
@@ -116,7 +118,13 @@ class CommerceUps extends ShippingMethodBase {
       '#default_value' => $this->configuration['api_information']['mode'],
     ];
 
-    $form['api_information']['rate_setting'] = [
+    $form['rate_options'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Rate options'),
+      '#description' => $this->t('Options to pass during rate requests.'),
+    ];
+
+    $form['rate_options']['rate_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Rate Type'),
       '#description' => $this->t('Choose between negotiated and standard rates.'),
@@ -124,7 +132,7 @@ class CommerceUps extends ShippingMethodBase {
         0 => $this->t('Standard Rates'),
         1 => $this->t('Negotiated Rates'),
       ],
-      '#default_value' => $this->configuration['api_information']['rate_setting'],
+      '#default_value' => $this->configuration['rate_options']['rate_type'],
     ];
 
     $form['options'] = [
@@ -156,7 +164,7 @@ class CommerceUps extends ShippingMethodBase {
       $this->configuration['api_information']['user_id'] = $values['api_information']['user_id'];
       $this->configuration['api_information']['password'] = $values['api_information']['password'];
       $this->configuration['api_information']['mode'] = $values['api_information']['mode'];
-      $this->configuration['api_information']['rate_setting'] = $values['api_information']['rate_setting'];
+      $this->configuration['rate_options']['rate_type'] = $values['rate_options']['rate_type'];
       $this->configuration['options']['log'] = $values['options']['log'];
 
     }
