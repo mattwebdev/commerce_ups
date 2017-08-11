@@ -35,17 +35,14 @@ class UPSRequest implements UPSRequestInterface {
   /**
    * Gets the mode to use for API calls.
    *
-   * @param array $configuration
-   *   The shipping method configuration array.
-   *
    * @return string
    *   The mode (test or live).
    */
-  public function getMode(array $configuration) {
+  public function getMode() {
     $mode = 'test';
 
-    if (!empty($configuration['api_information']['mode'])) {
-      $mode = $configuration['api_information']['mode'];
+    if (!empty($this->configuration['api_information']['mode'])) {
+      $mode = $this->configuration['api_information']['mode'];
     }
 
     return $mode;
