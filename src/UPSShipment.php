@@ -1,12 +1,13 @@
 <?php
 
 namespace Drupal\commerce_ups;
+
 use Drupal\address\AddressInterface;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Ups\Entity\Package as UPSPackage;
-use UPS\Entity\Address;
-use UPS\Entity\Shipment as APIShipment;
-use UPS\Entity\Dimensions;
+use Ups\Entity\Address;
+use Ups\Entity\Shipment as APIShipment;
+use Ups\Entity\Dimensions;
 use Ups\Entity\UnitOfMeasurement;
 
 class UPSShipment extends UPSEntity {
@@ -19,7 +20,7 @@ class UPSShipment extends UPSEntity {
   }
 
   /**
-   * @return \UPS\Entity\Shipment
+   * @return \Ups\Entity\Shipment
    */
   public function getShipment() {
     $api_shipment = new APIShipment();
@@ -47,7 +48,7 @@ class UPSShipment extends UPSEntity {
   }
 
   /**
-   * @param \UPS\Entity\Shipment $api_shipment
+   * @param \Ups\Entity\Shipment $api_shipment
    */
   public function setShipFrom(APIShipment $api_shipment) {
     // todo: set all address fields.
@@ -63,7 +64,7 @@ class UPSShipment extends UPSEntity {
   }
 
   /**
-   * @param \UPS\Entity\Shipment $api_shipment
+   * @param \Ups\Entity\Shipment $api_shipment
    */
   public function setPackage(APIShipment $api_shipment) {
     $package = new UPSPackage();
