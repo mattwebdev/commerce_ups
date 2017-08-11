@@ -62,7 +62,7 @@ class CommerceUps extends ShippingMethodBase {
         'user_id' => '',
         'password' => '',
         'mode' => 'test',
-        'negotiated' => '',
+        'nRate' => 0,
       ],
       'options' => [
         'log' => [],
