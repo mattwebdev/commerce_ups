@@ -98,12 +98,15 @@ class CommerceUps extends ShippingMethodBase {
       '#default_value' => $this->configuration['api_information']['user_id'],
       '#required' => TRUE,
     ];
+
     $form['api_information']['password'] = [
-      '#type' => 'password',
+      '#type' => 'textfield',
       '#title' => t('Password'),
       '#description' => t(''),
-      '#default_value' => '',
+      '#default_value' => $this->configuration['api_information']['password'],
+      '#required' => TRUE,
     ];
+
     $form['api_information']['mode'] = [
       '#type' => 'select',
       '#title' => $this->t('Mode'),
@@ -158,14 +161,11 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     if (!$form_state->getErrors()) {
-
       $values = $form_state->getValue($form['#parents']);
 
       $this->configuration['api_information']['access_key'] = $values['api_information']['access_key'];
       $this->configuration['api_information']['user_id'] = $values['api_information']['user_id'];
-      if (!empty($values['api_information']['password'])) {
-        $this->configuration['api_information']['password'] = $values['api_information']['password'];
-      }
+      $this->configuration['api_information']['password'] = $values['api_information']['password'];
       $this->configuration['api_information']['mode'] = $values['api_information']['mode'];
 
       $this->configuration['options']['packaging'] = $values['options']['packaging'];
