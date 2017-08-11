@@ -25,12 +25,11 @@ class UPSRateRequest extends UPSRequest {
   protected $ups_shipment;
 
   /**
-   * UPSRateRequest constructor.
-   * @param array $configuration
+   * Set the shipment for rate requests.
+   *
    * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $commerce_shipment
    */
-  public function __construct(array $configuration, ShipmentInterface $commerce_shipment) {
-    parent::__construct($configuration);
+  public function setShipment(ShipmentInterface $commerce_shipment) {
     $this->commerce_shipment = $commerce_shipment;
   }
 
@@ -38,6 +37,11 @@ class UPSRateRequest extends UPSRequest {
    * Fetch rates from the UPS API.
    */
   public function getRates() {
+    // Validate a commerce shipment has been provided.
+    if (empty($this->commerce_shipment)) {
+      throw new \Exception('Shipment not provided');
+    }
+
     $rates = [];
     $auth = $this->getAuth();
 
