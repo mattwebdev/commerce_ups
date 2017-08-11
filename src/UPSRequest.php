@@ -50,13 +50,4 @@ class UPSRequest implements UPSRequestInterface {
 
     return $mode;
   }
-
-  /**
-   * Gets the rate setting: whether we will use negotiated rates or standard rates.
-   *
-   * @return int
-   */
-  public function getRateSetting() {
-    return intval($this->configuration['api_information']['rate_setting']);
-  }
 }
