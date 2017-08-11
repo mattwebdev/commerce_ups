@@ -12,14 +12,16 @@ class UPSEntity {
   }
 
   /**
+   * Sets the unit of measurement for a UPS Entity.
+   *
    * @param $code
    *
    * @return \Ups\Entity\UnitOfMeasurement
    */
   public function setUnitOfMeasurement($code) {
-    $upsUnit = new UnitOfMeasurement();
-    $upsUnit->setCode($code);
-    return $upsUnit;
+    $ups_unit = new UnitOfMeasurement();
+    $ups_unit->setCode($code);
+    return $ups_unit;
   }
 
   /**
