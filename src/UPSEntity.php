@@ -4,7 +4,7 @@ namespace Drupal\commerce_ups;
 
 use Ups\Entity\UnitOfMeasurement;
 
-abstract class UPSEntity {
+class UPSEntity {
   /**
    * UPSEntity constructor.
    */
