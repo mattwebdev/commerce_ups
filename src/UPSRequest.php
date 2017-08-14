@@ -7,15 +7,18 @@ namespace Drupal\commerce_ups;
  *
  * @package Drupal\commerce_ups
  */
-class UPSRequest implements UPSRequestInterface {
+abstract class UPSRequest implements UPSRequestInterface {
+  /**
+   * @var array.
+   */
   protected $configuration;
 
   /**
-   * UPSRequest constructor.
+   * Sets configuration for requests.
    *
    * @param $configuration
    */
-  public function __construct($configuration) {
+  public function setConfig($configuration) {
     $this->configuration = $configuration;
   }
 
@@ -23,8 +26,16 @@ class UPSRequest implements UPSRequestInterface {
    * Returns authentication array for a request.
    *
    * @return array
+   * @throws \Exception
    */
   protected function getAuth() {
+    // Verify necessary configuration is available.
+    if (empty($this->configuration['api_information']['access_key'])
+    || empty($this->configuration['api_information']['user_id'])
+    || empty($this->configuration['api_information']['password'])) {
+      throw new \Exception('Configuration is required.');
+    }
+
     return [
       'access_key' => $this->configuration['api_information']['access_key'],
       'user_id' => $this->configuration['api_information']['user_id'],

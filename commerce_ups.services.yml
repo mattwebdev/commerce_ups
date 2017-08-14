@@ -1,1 +1,4 @@
 services:
+  commerce_ups.ups_rate_request:
+    class: Drupal\commerce_ups\UPSRateRequest
+    arguments: []

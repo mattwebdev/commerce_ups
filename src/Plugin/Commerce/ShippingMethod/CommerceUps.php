@@ -6,8 +6,10 @@ use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\PackageTypeManagerInterface;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
+use Drupal\commerce_ups\UPSRequestInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\commerce_ups\UPSRateRequest;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 /**
@@ -33,6 +35,11 @@ use Drupal\commerce_ups\UPSRateRequest;
  */
 class CommerceUps extends ShippingMethodBase {
   /**
+   * @var \Drupal\commerce_ups\UPSRateRequest
+   */
+  protected $ups_rate_service;
+
+  /**
    * Constructs a new ShippingMethodBase object.
    *
    * @param array $configuration
@@ -42,12 +49,27 @@ class CommerceUps extends ShippingMethodBase {
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\commerce_shipping\PackageTypeManagerInterface $packageTypeManager
-   *
-   * @internal param \Drupal\commerce_shipping\PackageTypeManagerInterface $package_type_manager
-   *   The package type manager.
+   *  The package type manager.
+   * @param \Drupal\commerce_ups\UPSRequestInterface $ups_rate_request
+   *   The rate request service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, PackageTypeManagerInterface $packageTypeManager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PackageTypeManagerInterface $packageTypeManager, UPSRequestInterface $ups_rate_request) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $packageTypeManager);
+    $this->ups_rate_service = $ups_rate_request;
+    $this->ups_rate_service->setConfig($configuration);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('plugin.manager.commerce_package_type'),
+      $container->get('commerce_ups.ups_rate_request')
+    );
   }
 
   /**
@@ -184,8 +206,8 @@ class CommerceUps extends ShippingMethodBase {
    *   The rates.
    */
   public function calculateRates(ShipmentInterface $shipment){
-    $rate_request = new UPSRateRequest($this->configuration, $shipment);
-    return $rate_request->getRates();
+    $this->ups_rate_service->setShipment($shipment);
+    return $this->ups_rate_service->getRates();
   }
 
   /**
