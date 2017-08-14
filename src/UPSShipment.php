@@ -2,12 +2,14 @@
 
 namespace Drupal\commerce_ups;
 
+use Drupal\address\AddressInterface;
 use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Ups\Entity\Package as UPSPackage;
 use Ups\Entity\Address;
 use Ups\Entity\ShipFrom;
 use Ups\Entity\Shipment as APIShipment;
 use Ups\Entity\Dimensions;
+use Ups\Entity\UnitOfMeasurement;
 
 class UPSShipment extends UPSEntity {
   protected $shipment;
@@ -41,6 +43,7 @@ class UPSShipment extends UPSEntity {
     $to_address->setCity($address->locality);
     $to_address->setStateProvinceCode($address->administrative_area);
     $to_address->setPostalCode($address->postal_code);
+
     $api_shipment->getShipTo()->setAddress($to_address);
   }
 
@@ -57,6 +60,7 @@ class UPSShipment extends UPSEntity {
     $from_address->setCity($address->getDependentLocality());
     $from_address->setStateProvinceCode($address->getAdministrativeArea());
     $from_address->setPostalCode($address->getPostalCode());
+    $from_address->setCountryCode($address->getCountryCode());
     $ship_from = new ShipFrom();
     $ship_from->setAddress($from_address);
     $api_shipment->setShipFrom($ship_from);
