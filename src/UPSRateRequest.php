@@ -53,7 +53,7 @@ class UPSRateRequest extends UPSRequest {
       $shipment = $ups_shipment->getShipment();
       // Set rate information.
       $rate_information = new RateInformation;
-      $rate_information->setNegotiatedRatesIndicator($this->getRateType());
+      $rate_information->setNegotiatedRatesIndicator($this->getRateSetting());
       $shipment->setRateInformation($rate_information);
 
       // Shop Rates
@@ -61,10 +61,9 @@ class UPSRateRequest extends UPSRequest {
     }
     catch (\Exception $ex) {
       // todo: handle exceptions by logging.
-      $ups_rates = [];
     }
 
-    if (!empty($ups_rates->RatedShipment)) {
+    if (isset($ups_rates) && !empty($ups_rates->RatedShipment)) {
       foreach ($ups_rates->RatedShipment as $ups_rate) {
         $service_code = $ups_rate->Service->getCode();
 
@@ -72,9 +71,17 @@ class UPSRateRequest extends UPSRequest {
         if (!in_array($service_code, $this->configuration['services'])) {
           continue;
         }
+        // Check whether we are using negotiated rates or standard rates.
+        if($this->getRateSetting() == 1 && !empty($ups_rate->NegotiatedRates)) {
+          // Use negotiated rates.
+          $cost = $ups_rate->NegotiatedRates->GrandTotal->MonetaryValue;
+          $currency = $ups_rate->NegotiatedRates->GrandTotal->CurrencyCode;
+        } else {
+          // Use standard rates.
+          $cost = $ups_rate->TotalCharges->MonetaryValue;
+          $currency = $ups_rate->TotalCharges->CurrencyCode;
+        }
 
-        $cost = $ups_rate->TotalCharges->MonetaryValue;
-        $currency = $ups_rate->TotalCharges->CurrencyCode;
         $price = new Price((string) $cost, $currency);
         $service_name = $ups_rate->Service->getName();
 
@@ -93,11 +100,12 @@ class UPSRateRequest extends UPSRequest {
   }
 
   /**
-   * Gets the rate type: whether we will use negotiated rates or standard rates.
+   * Gets the rate setting: whether we will use negotiated rates or standard rates.
    *
-   * @return mixed
+   * @return boolean
    */
-  public function getRateType() {
-    return intval($this->configuration['rate_options']['rate_type']);
+  public function getRateSetting() {
+    return boolval($this->configuration['api_information']['rate_setting']);
   }
+
 }

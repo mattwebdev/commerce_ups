@@ -55,19 +55,17 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-      'api_information' => [
-        'access_key' => '',
-        'user_id' => '',
-        'password' => '',
-        'mode' => 'test',
-      ],
-      'rate_options' => [
-        'rate_type' => 0,
-      ] ,
-      'options' => [
-        'log' => [],
-      ],
-    ] + parent::defaultConfiguration();
+        'api_information' => [
+          'access_key' => '',
+          'user_id' => '',
+          'password' => '',
+          'mode' => 'test',
+          'rate_setting' => 0,
+        ],
+        'options' => [
+          'log' => [],
+        ],
+      ] + parent::defaultConfiguration();
   }
 
   /**
@@ -118,13 +116,7 @@ class CommerceUps extends ShippingMethodBase {
       '#default_value' => $this->configuration['api_information']['mode'],
     ];
 
-    $form['rate_options'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Rate options'),
-      '#description' => $this->t('Options to pass during rate requests.'),
-    ];
-
-    $form['rate_options']['rate_type'] = [
+    $form['api_information']['rate_setting'] = [
       '#type' => 'select',
       '#title' => $this->t('Rate Type'),
       '#description' => $this->t('Choose between negotiated and standard rates.'),
@@ -132,7 +124,7 @@ class CommerceUps extends ShippingMethodBase {
         0 => $this->t('Standard Rates'),
         1 => $this->t('Negotiated Rates'),
       ],
-      '#default_value' => $this->configuration['rate_options']['rate_type'],
+      '#default_value' => $this->configuration['api_information']['rate_setting'],
     ];
 
     $form['options'] = [
@@ -156,6 +148,15 @@ class CommerceUps extends ShippingMethodBase {
   /**
    * {@inheritdoc}
    */
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+
+    parent::validateConfigurationForm($form, $form_state);
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     if (!$form_state->getErrors()) {
       $values = $form_state->getValue($form['#parents']);
@@ -164,7 +165,9 @@ class CommerceUps extends ShippingMethodBase {
       $this->configuration['api_information']['user_id'] = $values['api_information']['user_id'];
       $this->configuration['api_information']['password'] = $values['api_information']['password'];
       $this->configuration['api_information']['mode'] = $values['api_information']['mode'];
-      $this->configuration['rate_options']['rate_type'] = $values['rate_options']['rate_type'];
+      $this->configuration['api_information']['rate_setting'] = $values['api_information']['rate_setting'];
+
+      //$this->configuration['options']['packaging'] = $values['options']['packaging'];
       $this->configuration['options']['log'] = $values['options']['log'];
 
     }
