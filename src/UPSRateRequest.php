@@ -25,12 +25,11 @@ class UPSRateRequest extends UPSRequest {
   protected $ups_shipment;
 
   /**
-   * UPSRateRequest constructor.
-   * @param array $configuration
+   * Set the shipment for rate requests.
+   *
    * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $commerce_shipment
    */
-  public function __construct(array $configuration, ShipmentInterface $commerce_shipment) {
-    parent::__construct($configuration);
+  public function setShipment(ShipmentInterface $commerce_shipment) {
     $this->commerce_shipment = $commerce_shipment;
   }
 
@@ -38,6 +37,11 @@ class UPSRateRequest extends UPSRequest {
    * Fetch rates from the UPS API.
    */
   public function getRates() {
+    // Validate a commerce shipment has been provided.
+    if (empty($this->commerce_shipment)) {
+      throw new \Exception('Shipment not provided');
+    }
+
     $rates = [];
     $auth = $this->getAuth();
 
@@ -51,19 +55,25 @@ class UPSRateRequest extends UPSRequest {
     try {
       $ups_shipment = new UPSShipment($this->commerce_shipment);
       $shipment = $ups_shipment->getShipment();
-      // Set rate information.
-      $rate_information = new RateInformation;
-      $rate_information->setNegotiatedRatesIndicator($this->getRateSetting());
-      $shipment->setRateInformation($rate_information);
+
+      // Enable negotiated rates, if enabled.
+      if ($this->getRateType()) {
+        $rate_information = new RateInformation;
+        $rate_information->setNegotiatedRatesIndicator(TRUE);
+        $rate_information->setRateChartIndicator(FALSE);
+        $shipment->setRateInformation($rate_information);
+      }
+
 
       // Shop Rates
       $ups_rates = $request->shopRates($shipment);
     }
     catch (\Exception $ex) {
       // todo: handle exceptions by logging.
+      $ups_rates = [];
     }
 
-    if (isset($ups_rates) && !empty($ups_rates->RatedShipment)) {
+    if (!empty($ups_rates->RatedShipment)) {
       foreach ($ups_rates->RatedShipment as $ups_rate) {
         $service_code = $ups_rate->Service->getCode();
 
@@ -71,17 +81,9 @@ class UPSRateRequest extends UPSRequest {
         if (!in_array($service_code, $this->configuration['services'])) {
           continue;
         }
-        // Check whether we are using negotiated rates or standard rates.
-        if($this->getRateSetting() == 1 && !empty($ups_rate->NegotiatedRates)) {
-          // Use negotiated rates.
-          $cost = $ups_rate->NegotiatedRates->GrandTotal->MonetaryValue;
-          $currency = $ups_rate->NegotiatedRates->GrandTotal->CurrencyCode;
-        } else {
-          // Use standard rates.
-          $cost = $ups_rate->TotalCharges->MonetaryValue;
-          $currency = $ups_rate->TotalCharges->CurrencyCode;
-        }
 
+        $cost = $ups_rate->TotalCharges->MonetaryValue;
+        $currency = $ups_rate->TotalCharges->CurrencyCode;
         $price = new Price((string) $cost, $currency);
         $service_name = $ups_rate->Service->getName();
 
@@ -100,12 +102,11 @@ class UPSRateRequest extends UPSRequest {
   }
 
   /**
-   * Gets the rate setting: whether we will use negotiated rates or standard rates.
+   * Gets the rate type: whether we will use negotiated rates or standard rates.
    *
-   * @return boolean
+   * @return mixed
    */
-  public function getRateSetting() {
-    return boolval($this->configuration['api_information']['rate_setting']);
+  public function getRateType() {
+    return intval($this->configuration['rate_options']['rate_type']);
   }
-
 }
