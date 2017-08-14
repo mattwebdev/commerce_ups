@@ -104,9 +104,9 @@ class UPSRateRequest extends UPSRequest {
   /**
    * Gets the rate type: whether we will use negotiated rates or standard rates.
    *
-   * @return mixed
+   * @return boolean
    */
   public function getRateType() {
-    return intval($this->configuration['rate_options']['rate_type']);
+    return boolval($this->configuration['rate_options']['rate_type']);
   }
 }
