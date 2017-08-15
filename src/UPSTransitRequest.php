@@ -58,8 +58,7 @@ class UPSTransitRequest extends UPSRateRequest {
     $this->setPickup();
     $this->setPackageCount();
 
-
-    die(kint($time_in_transit->getTimeInTransit($this->request)));
+    return $time_in_transit->getTimeInTransit($this->request);
 
   }
 
@@ -89,7 +88,7 @@ class UPSTransitRequest extends UPSRateRequest {
   public function setInvoiceLines() {
     $invoiceLineTotal = new InvoiceLineTotal;
     $invoiceLineTotal->setMonetaryValue($this->commerce_shipment->getOrder()->getSubtotalPrice()->getNumber());
-    $invoiceLineTotal->setCurrencyCode($this->commerce_shipment->getOrder()->getSubtotalPrice()->getNumber());
+    $invoiceLineTotal->setCurrencyCode($this->commerce_shipment->getOrder()->getSubtotalPrice()->getCurrencyCode());
 
     $this->request->setInvoiceLineTotal($invoiceLineTotal);
 
