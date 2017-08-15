@@ -6,10 +6,11 @@ use Drupal\commerce_shipping\Entity\ShipmentInterface;
 use Drupal\commerce_shipping\PackageTypeManagerInterface;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
-use Drupal\commerce_ups\UPSRequestInterface;
+use Drupal\commerce_ups\UPSShipment;
+use Drupal\commerce_ups\UPSTransitRequest;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\commerce_ups\UPSRateRequest;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Ups\Entity\TimeInTransitRequest;
 
 
 /**
@@ -35,11 +36,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class CommerceUps extends ShippingMethodBase {
   /**
-   * @var \Drupal\commerce_ups\UPSRateRequest
-   */
-  protected $ups_rate_service;
-
-  /**
    * Constructs a new ShippingMethodBase object.
    *
    * @param array $configuration
@@ -49,27 +45,12 @@ class CommerceUps extends ShippingMethodBase {
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\commerce_shipping\PackageTypeManagerInterface $packageTypeManager
-   *  The package type manager.
-   * @param \Drupal\commerce_ups\UPSRequestInterface $ups_rate_request
-   *   The rate request service.
+   *
+   * @internal param \Drupal\commerce_shipping\PackageTypeManagerInterface $package_type_manager
+   *   The package type manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, PackageTypeManagerInterface $packageTypeManager, UPSRequestInterface $ups_rate_request) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PackageTypeManagerInterface $packageTypeManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $packageTypeManager);
-    $this->ups_rate_service = $ups_rate_request;
-    $this->ups_rate_service->setConfig($configuration);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('plugin.manager.commerce_package_type'),
-      $container->get('commerce_ups.ups_rate_request')
-    );
   }
 
   /**
@@ -77,19 +58,17 @@ class CommerceUps extends ShippingMethodBase {
    */
   public function defaultConfiguration() {
     return [
-      'api_information' => [
-        'access_key' => '',
-        'user_id' => '',
-        'password' => '',
-        'mode' => 'test',
-      ],
-      'rate_options' => [
-        'rate_type' => 0,
-      ] ,
-      'options' => [
-        'log' => [],
-      ],
-    ] + parent::defaultConfiguration();
+        'api_information' => [
+          'access_key' => '',
+          'user_id' => '',
+          'password' => '',
+          'mode' => 'test',
+          'rate_setting' => 0,
+        ],
+        'options' => [
+          'log' => [],
+        ],
+      ] + parent::defaultConfiguration();
   }
 
   /**
@@ -140,13 +119,7 @@ class CommerceUps extends ShippingMethodBase {
       '#default_value' => $this->configuration['api_information']['mode'],
     ];
 
-    $form['rate_options'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Rate options'),
-      '#description' => $this->t('Options to pass during rate requests.'),
-    ];
-
-    $form['rate_options']['rate_type'] = [
+    $form['api_information']['rate_setting'] = [
       '#type' => 'select',
       '#title' => $this->t('Rate Type'),
       '#description' => $this->t('Choose between negotiated and standard rates.'),
@@ -154,7 +127,7 @@ class CommerceUps extends ShippingMethodBase {
         0 => $this->t('Standard Rates'),
         1 => $this->t('Negotiated Rates'),
       ],
-      '#default_value' => $this->configuration['rate_options']['rate_type'],
+      '#default_value' => $this->configuration['api_information']['rate_setting'],
     ];
 
     $form['options'] = [
@@ -178,6 +151,15 @@ class CommerceUps extends ShippingMethodBase {
   /**
    * {@inheritdoc}
    */
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+
+    parent::validateConfigurationForm($form, $form_state);
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     if (!$form_state->getErrors()) {
       $values = $form_state->getValue($form['#parents']);
@@ -186,7 +168,9 @@ class CommerceUps extends ShippingMethodBase {
       $this->configuration['api_information']['user_id'] = $values['api_information']['user_id'];
       $this->configuration['api_information']['password'] = $values['api_information']['password'];
       $this->configuration['api_information']['mode'] = $values['api_information']['mode'];
-      $this->configuration['rate_options']['rate_type'] = $values['rate_options']['rate_type'];
+      $this->configuration['api_information']['rate_setting'] = $values['api_information']['rate_setting'];
+
+      //$this->configuration['options']['packaging'] = $values['options']['packaging'];
       $this->configuration['options']['log'] = $values['options']['log'];
 
     }
@@ -203,8 +187,15 @@ class CommerceUps extends ShippingMethodBase {
    *   The rates.
    */
   public function calculateRates(ShipmentInterface $shipment){
-    $this->ups_rate_service->setShipment($shipment);
-    return $this->ups_rate_service->getRates();
+    $rate_request = new UPSRateRequest($this->configuration, $shipment);
+    $api_shipment = new UPSShipment($shipment);
+
+    $rates = $rate_request->getRates();
+
+    $time_in_transit = new UPSTransitRequest($this->configuration, $shipment,$api_shipment->getShipment());
+    $time_in_transit->getTransitTime();
+
+    return $rates;
   }
 
   /**
@@ -216,7 +207,6 @@ class CommerceUps extends ShippingMethodBase {
    *   The shipping rate.
    */
   public function selectRate(ShipmentInterface $shipment, ShippingRate $rate) {
-
   }
 
   /**
