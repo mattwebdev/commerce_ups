@@ -89,11 +89,18 @@ class UPSRateRequest extends UPSRequest {
           $service_name,
           $service_name
         );
-        $rates[] = new ShippingRate(
-          $service_code,
-          $shipping_service,
-          $price
-        );
+        $time_in_transit = new UPSTransitRequest($this->configuration,$this->commerce_shipment,$shipment);
+        $times = $time_in_transit->getTransitTime();
+        $date = new DrupalDateTime();
+
+        foreach($times->ServiceSummary as $serviceSummary) {
+          $rates[] = new ShippingRate(
+            $service_code,
+            $shipping_service,
+            $price,
+            $date::createFromFormat('Y-m-d',$serviceSummary->EstimatedArrival->Date)
+          );
+        }
       }
     }
     return $rates;
