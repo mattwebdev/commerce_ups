@@ -8,7 +8,6 @@ use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\ShippingMethodBase;
 use Drupal\commerce_shipping\ShippingRate;
 use Drupal\commerce_ups\UPSRequestInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\commerce_ups\UPSRateRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
@@ -33,7 +32,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   },
  * )
  */
-class CommerceUps extends ShippingMethodBase {
+class UPS extends ShippingMethodBase {
   /**
    * @var \Drupal\commerce_ups\UPSRateRequest
    */
