@@ -10,7 +10,6 @@ use Drupal\commerce_ups\UPSRequestInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-
 /**
  * @CommerceShippingMethod(
  *  id = "ups",
@@ -48,7 +47,7 @@ class UPS extends ShippingMethodBase {
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\commerce_shipping\PackageTypeManagerInterface $packageTypeManager
-   *  The package type manager.
+   *   The package type manager.
    * @param \Drupal\commerce_ups\UPSRequestInterface $ups_rate_request
    *   The rate request service.
    */
@@ -108,14 +107,12 @@ class UPS extends ShippingMethodBase {
     $form['api_information']['access_key'] = [
       '#type' => 'textfield',
       '#title' => t('Access Key'),
-      '#description' => t(''),
       '#default_value' => $this->configuration['api_information']['access_key'],
       '#required' => TRUE,
     ];
     $form['api_information']['user_id'] = [
       '#type' => 'textfield',
       '#title' => t('User ID'),
-      '#description' => t(''),
       '#default_value' => $this->configuration['api_information']['user_id'],
       '#required' => TRUE,
     ];
@@ -123,7 +120,6 @@ class UPS extends ShippingMethodBase {
     $form['api_information']['password'] = [
       '#type' => 'textfield',
       '#title' => t('Password'),
-      '#description' => t(''),
       '#default_value' => $this->configuration['api_information']['password'],
       '#required' => TRUE,
     ];
@@ -201,7 +197,7 @@ class UPS extends ShippingMethodBase {
    * @return \Drupal\commerce_shipping\ShippingRate[]
    *   The rates.
    */
-  public function calculateRates(ShipmentInterface $shipment){
+  public function calculateRates(ShipmentInterface $shipment) {
     $this->ups_rate_service->setShipment($shipment);
     return $this->ups_rate_service->getRates();
   }
@@ -233,5 +229,5 @@ class UPS extends ShippingMethodBase {
       && !empty($api_information['password'])
     );
   }
-}
 
+}
