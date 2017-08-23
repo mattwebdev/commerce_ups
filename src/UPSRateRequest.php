@@ -9,25 +9,29 @@ use Drupal\commerce_shipping\ShippingService;
 use Ups\Rate;
 use Ups\Entity\RateInformation;
 
-
 /**
- * Class UPSRateRequest
+ * Class UPSRateRequest.
+ *
  * @package Drupal\commerce_ups
  */
 class UPSRateRequest extends UPSRequest {
-  /** @var \Drupal\commerce_shipping\Entity\ShipmentInterface  */
+  /**
+   * @var \Drupal\commerce_shipping\Entity\ShipmentInterface*/
   protected $commerce_shipment;
 
-  /** @var array */
+  /**
+   * @var array*/
   protected $configuration;
 
-  /** @var UPSShipment */
+  /**
+   * @var UPSShipment*/
   protected $ups_shipment;
 
   /**
    * Set the shipment for rate requests.
    *
    * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $commerce_shipment
+   *   A Drupal Commerce shipment entity.
    */
   public function setShipment(ShipmentInterface $commerce_shipment) {
     $this->commerce_shipment = $commerce_shipment;
@@ -58,14 +62,13 @@ class UPSRateRequest extends UPSRequest {
 
       // Enable negotiated rates, if enabled.
       if ($this->getRateType()) {
-        $rate_information = new RateInformation;
+        $rate_information = new RateInformation();
         $rate_information->setNegotiatedRatesIndicator(TRUE);
         $rate_information->setRateChartIndicator(FALSE);
         $shipment->setRateInformation($rate_information);
       }
 
-
-      // Shop Rates
+      // Shop Rates.
       $ups_rates = $request->shopRates($shipment);
     }
     catch (\Exception $ex) {
@@ -104,9 +107,11 @@ class UPSRateRequest extends UPSRequest {
   /**
    * Gets the rate type: whether we will use negotiated rates or standard rates.
    *
-   * @return boolean
+   * @return bool
+   *   Returns true if negotiated rates should be requested.
    */
   public function getRateType() {
     return boolval($this->configuration['rate_options']['rate_type']);
   }
+
 }
