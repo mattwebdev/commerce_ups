@@ -13,13 +13,22 @@ class UPSShipment extends UPSEntity {
   protected $shipment;
   protected $api_shipment;
 
+  /**
+   * UPSShipment constructor.
+   *
+   * @param \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment
+   *   A commerce shipping shipment object.
+   */
   public function __construct(ShipmentInterface $shipment) {
     parent::__construct();
     $this->shipment = $shipment;
   }
 
   /**
+   * Creates and returns a Ups API shipment object.
+   *
    * @return \Ups\Entity\Shipment
+   *   A Ups API shipment object.
    */
   public function getShipment() {
     $api_shipment = new APIShipment();
@@ -30,10 +39,13 @@ class UPSShipment extends UPSEntity {
   }
 
   /**
-   * @param $api_shipment APIShipment.
+   * Sets the ship to for a given shipment.
+   *
+   * @param \Ups\Entity\Shipment $api_shipment
+   *   A Ups API shipment object.
    */
   public function setShipTo(APIShipment $api_shipment) {
-    // todo: set all address fields
+    // todo: set all address fields.
     $address = $this->shipment->getShippingProfile()->address;
     $to_address = new Address();
     $to_address->setAddressLine1($address->address_line1);
@@ -45,11 +57,13 @@ class UPSShipment extends UPSEntity {
   }
 
   /**
+   * Sets the ship from for a given shipment.
+   *
    * @param \Ups\Entity\Shipment $api_shipment
+   *   A Ups API shipment object.
    */
   public function setShipFrom(APIShipment $api_shipment) {
     // todo: set all address fields.
-
     $address = $this->shipment->getOrder()->getStore()->getAddress();
     $from_address = new Address();
     $from_address->setAddressLine1($address->getAddressLine1());
@@ -63,7 +77,10 @@ class UPSShipment extends UPSEntity {
   }
 
   /**
+   * Sets the package for a given shipment.
+   *
    * @param \Ups\Entity\Shipment $api_shipment
+   *   A Ups API shipment object.
    */
   public function setPackage(APIShipment $api_shipment) {
     $package = new UPSPackage();
@@ -73,7 +90,10 @@ class UPSShipment extends UPSEntity {
   }
 
   /**
+   * Package dimension setter.
+   *
    * @param \Ups\Entity\Package $ups_package
+   *   A Ups API package object.
    */
   public function setDimensions(UPSPackage $ups_package) {
     $dimensions = new Dimensions();
@@ -86,7 +106,10 @@ class UPSShipment extends UPSEntity {
   }
 
   /**
+   * Define the package weight.
+   *
    * @param \Ups\Entity\Package $ups_package
+   *   A package object from the Ups API.
    */
   public function setWeight(UPSPackage $ups_package) {
     $ups_package_weight = $ups_package->getPackageWeight();
@@ -94,4 +117,5 @@ class UPSShipment extends UPSEntity {
     $unit = $this->getUnitOfMeasure($this->shipment->getPackageType()->getWeight()->getUnit());
     $ups_package_weight->setUnitOfMeasurement($this->setUnitOfMeasurement($unit));
   }
+
 }
