@@ -9,16 +9,17 @@ namespace Drupal\commerce_ups;
  */
 abstract class UPSRequest implements UPSRequestInterface {
   /**
-   * @var array.
+   * @var array
    */
   protected $configuration;
 
   /**
    * Sets configuration for requests.
    *
-   * @param $configuration
+   * @param array $configuration
+   *   A configuration array from a CommerceShippingMethod.
    */
-  public function setConfig($configuration) {
+  public function setConfig(array $configuration) {
     $this->configuration = $configuration;
   }
 
@@ -26,6 +27,8 @@ abstract class UPSRequest implements UPSRequestInterface {
    * Returns authentication array for a request.
    *
    * @return array
+   *   An array of authentication parameters.
+   *
    * @throws \Exception
    */
   protected function getAuth() {
@@ -46,7 +49,7 @@ abstract class UPSRequest implements UPSRequestInterface {
   /**
    * Determine if integration mode (test or live) should be used.
    *
-   * @return boolean
+   * @return bool
    *   Integration mode (ie: test) is the default.
    */
   public function useIntegrationMode() {
@@ -59,4 +62,5 @@ abstract class UPSRequest implements UPSRequestInterface {
     // Use integration mode by default.
     return TRUE;
   }
+
 }

@@ -7,5 +7,5 @@ interface UPSRequestInterface {
    * Set the request configuration.
    * @param $configuration
    */
-  public function setConfig($configuration);
+  public function setConfig(array $configuration);
 }
