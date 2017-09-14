@@ -72,7 +72,7 @@ class UPSRateRequest extends UPSRequest {
       $ups_rates = $request->shopRates($shipment);
     }
     catch (\Exception $ex) {
-      // todo: handle exceptions by logging.
+      \Drupal::logger('commerce_ups')->error($ex->getMessage());
       $ups_rates = [];
     }
 
